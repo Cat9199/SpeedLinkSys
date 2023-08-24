@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speed link</title>
+
+    <!-- main css file -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css')}}" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        center {
+            padding: 30px 0 0;
+        }
+        
+        .container {
+            min-height: 100vh;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(200px, 400px));
+            gap: 20px;
+            padding: 40px 80px;
+            justify-content: center;
+            align-content: center;
+            width: 100%;
+        }
+        
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            min-height: 250px;
+        }
+        
+        .card svg {
+            max-width: 70%;
+            flex: 1;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #403f3f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* Media query for responsiveness */
+        
+        @media screen and (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            .card {
+                padding: 15px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+        }
+        
+        .notification-button {
+            display: flex;
+            align-items: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        .notification-icon {
+            width: 20px;
+            height: 20px;
+            fill: rgb(0, 0, 0);
+            margin-right: 4px;
+        }
+        
+        .notification-badge {
+            right: -6px;
+            top: 0;
+            margin: 0 10px 0 0;
+            width: 20px;
+            height: 20px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50%;
+        }
+        
+        .notification-badge-number {
+            color: rgb(255, 255, 255);
+            font-size: 16px;
+            font: bold;
+        }
+        
+        .notification-text {
+            color: rgb(0, 0, 0);
+            font-size: 16px;
+        }
+    </style>
+    <!-- Normalize library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+
+<body dir="rtl" style="background-color: #fff;">
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static',filename='images/logo.jpg')}}" alt="Speed Link Logo" />
+            <h1 class="name">Speed Link</h1>
+        </div>
+        <div class="header-content">
+            <a href="/notifications" class="notification-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="notification-icon bi bi-bell-fill" viewBox="0 0 16 16">
+                  <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+                </svg>
+
+                <span class="notification-text">الاشعارات</span>
+                <div class="notification-badge">
+                    <span class="notification-badge-number">3</span>
+                </div>
+            </a>
+        </div>
+    </header>
+    <div class="container">
+        <center>
+            <h2>
+                مرحبا,
+                <span>{{ username }}</span>
+            </h2>
+        </center>
+        {% if user_type == 'admin' %}
+        <div class="grid-container">
+            <div class="card">
+
+                   <a href="/addusers" class="btn" style="text-decoration:none">اضافت حسابات</a>
+            </div>
+            <div class="card">
+
+                     <a href="/addushipment" class="btn" style="text-decoration:none">اضافت شحنات</a>
+            </div>
+            <div class="card">
+
+               <a href="/viweshipping" class="btn" style="text-decoration:none">متابعت طلبات</a>
+            </div>
+            <div class="card">
+
+                  <a href="/viwewallets" class="btn" style="text-decoration:none">متابعت المحافظ</a>
+            </div>
+        </div>
+    </div>
+    {% elif user_type == 'shipper' %}
+    <div class="grid-container">
+        <div class="card">
+
+            <a href="/addusers" class="btn" style="text-decoration:none">نظرة عامة</a>
+        </div>
+        <div class="card">
+
+                 <a href="/addushipment" class="btn" style="text-decoration:none">اضافت شحنات</a>
+        </div>
+        <div class="card">
+
+         <a href="/viweshipping" class="btn" style="text-decoration:none">متابعت طلبات</a>
+        </div>
+        <div class="card">
+
+              <a href="/viwewallets/{{ infoS.wallet_code }}" class="btn" style="text-decoration:none">متابعت المحفظة</a>
+        </div>
+
+    </div>
+    </div> {% elif user_type == 'delivery' %} delivery {% endif %}
+    <center>
+        <footer class="footer">
+            <p>
+                &copy; Develped by
+                <a href="#">Abdulrahman Nasr</a> and
+                <a href="#">Baraa Mohamed</a>
+            </p>
+        </footer>
+    </center>
+
+
+</body>
+
+</html>
