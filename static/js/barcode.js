@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const startCameraButton = document.getElementById("startCamera");
     const cameraStreamContainer = document.getElementById("cameraStreamContainer");
     const resultContainer = document.getElementById("resultContainer");
+    const inputField = document.getElementById("inputField");
     let cameraStream;
     let barcodeFound = false;
 
@@ -35,8 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const result = await response.text();
-            resultContainer.textContent = `Attempting: ${result}`;
-
+           
+            inputField.value = result;
             if (result !== "No barcode found.") {
                 barcodeFound = true;
             }

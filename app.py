@@ -9,7 +9,11 @@ from pyzbar.pyzbar import decode
 from datetime import datetime
 from barcode_extractor import extract_barcode_data
 import pytz
-
+import requests
+import json
+import datetime
+import pytz
+import random 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///speedlink.db'
@@ -23,7 +27,15 @@ class Admins(db.Model):
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     position = db.Column(db.String(100))
-
+    CompanyID = db.Column(db.String(100))
+    AccessToken =  db.Column(db.String(200))
+    Language  =  db.Column(db.String(200))
+    Content_Type = db.Column(db.String(200))
+    city=db.Column(db.String(200))
+    address = db.Column(db.String(200))
+    phone1=db.Column(db.String(100))
+    phone2 = db.Column(db.String(100))
+    
 class Shippers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
@@ -89,8 +101,12 @@ class Shipment(db.Model):
     pprice = db.Column(db.Integer)
     dprice = db.Column(db.Integer)
     tprice = db.Column(db.Integer)
-    province = db.Column(db.String(100))
+    shipment_status = db.Column(db.String(100))
     date = db.Column(db.String(23))
+    accepted = db.Column(db.Boolean)  
+    delivery_date = db.Column(db.String(20)) 
+    aws_code = db.Column(db.String(25))  
+    how = db.Column(db.String(25)) 
 
 class ShippingDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +115,50 @@ class ShippingDetail(db.Model):
     delivery_id = db.Column(db.Integer)
     state = db.Column(db.String(100))
     created_at = db.Column(db.String(23))
+class Dprice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sid = db.Column(db.Integer)
+    Cairo = db.Column(db.Integer)
+    Alexandria = db.Column(db.Integer)
+    Giza = db.Column(db.Integer)
+    SharmElSheikh = db.Column(db.Integer)
+    Luxor = db.Column(db.Integer)
+    Aswan = db.Column(db.Integer)
+    Hurghada = db.Column(db.Integer)
+    Ismailia = db.Column(db.Integer)
+    Tanta = db.Column(db.Integer)
+    Mansoura = db.Column(db.Integer)
+    PortSaid = db.Column(db.Integer)
+    Suez = db.Column(db.Integer)
+    Banha = db.Column(db.Integer)
+    AlMahallaAlKubra = db.Column(db.Integer)
+    Sohag = db.Column(db.Integer)
+    Qena = db.Column(db.Integer)
+    Asyut = db.Column(db.Integer)
+    Damietta = db.Column(db.Integer)
+    Zagazig = db.Column(db.Integer)
+    ElArish = db.Column(db.Integer)
+    MarsaMatruh = db.Column(db.Integer)
+    KafrElSheikh = db.Column(db.Integer)
+    Fayoum = db.Column(db.Integer)
+    BeniSuef = db.Column(db.Integer)
+    Minya = db.Column(db.Integer)
+def save_shipment(payload):
+    reqUrl = "https://vsoftapi.com-eg.net/api/ClientUsers/V6/SaveShipment"
+    user=session['username']
+    info = Admins.query.filter_by(username=user).first()
+    headersList = {
+        "CompanyID": info.CompanyID,
+        "AccessToken": info.AccessToken,
+        "Language": info.Language ,
+        "Content-Type": info.Content_Type   
+    }
+    payload['fromCityID'] = 4
+    payload['fromAddress'] = info.address
+    payload['fromPhone'] = info.phone1
+    print(payload)
+    response = requests.post(reqUrl, json=payload, headers=headersList)
+    return response.text
 
 def generate_unique_code(length=15):
     characters = string.ascii_letters + string.digits
@@ -109,27 +169,22 @@ def barcode_generator(n=15):
     random_numbers = [str(random.randint(0, 9)) for _ in range(n)]
     return "".join(random_numbers)
 def get_current_time():
-    url = "http://worldclockapi.com/api/json/utc/now"
-    response = requests.get(url)
- 
-    if response.status_code == 200:
-        data = response.json()
-        utc_time = data['currentDateTime']
-        utc_datetime = datetime.strptime(utc_time, '%Y-%m-%dT%H:%MZ')
-        
-        # Convert UTC time to Egypt timezone
-        egypt_timezone = pytz.timezone('Africa/Cairo')
-        egypt_time = utc_datetime.replace(tzinfo=pytz.utc).astimezone(egypt_timezone)
-        
-        egypt_time_str = egypt_time.strftime('%Y-%m-%d %H:%M:%S')
-        return egypt_time_str
-    else:
-        return "Error fetching time data."
+    egypt_timezone = pytz.timezone('Africa/Cairo')
+    current_time = datetime.datetime.now(egypt_timezone)
+    return current_time
+@app.route('/setting')
+def setting():
+    username = session['username']
+    admin = Admins.query.filter_by(username=username).first()
 
-
+    return render_template('setting.html',info=admin)
 @app.route('/')
 def index():
     return render_template('index.html')
+@app.route('/users')
+def test():
+    users = Shippers.query.all()
+    return render_template('users.html',users=users)
 @app.route('/track/<int:barcode>')
 def track(barcode):
     info = Shipment.query.filter_by(barcode=barcode).first()
@@ -153,6 +208,7 @@ def login():
         elif loginShipper:
             session['user_type'] = 'shipper'
             session['username'] = username
+            session['wellat'] = loginShipper.wallet_code
             return redirect('/dashboard')
         elif loginDelivery:
             session['user_type'] = 'delivery'
@@ -175,7 +231,7 @@ def dashboard():
     username = session.get('username')
     
     if user_type == 'admin':
-        shinfo = Shipment.query.filter_by(shipper_username=username).all()
+        shinfo = Shipment.query.filter_by(status='New Add').all()
         return render_template('dashboard.html', paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoL=shinfo)
     elif user_type == 'shipper':
          
@@ -213,7 +269,7 @@ def viwewallets(wallet_code):
     return render_template('wallet.html',infoS=shipper,infoW=wallet,infoL=wallet_log)
 @app.route('/notifications')
 def notifications():
-    return 'this is notifications page'
+    return render_template('notifications.html')
 @app.route('/extract_barcode', methods=['POST'])
 def extract_barcode():
     if 'image' in request.files:
@@ -239,7 +295,7 @@ def changstates(barcode):
                 created_at='19291329    '  
             )
 
-            s.province = shipment_status
+            s.shipment_status = shipment_status
 
             if shipment_status == 'تم توصيل الشحنة':
                 u.dues = int(u.dues) + int(s.pprice)
@@ -254,17 +310,10 @@ def changstates(barcode):
                 )
 
                 s.status = 'archiv'
-
-                # أضف وحدة الحالة الجديدة إلى قاعدة البيانات
                 db.session.add(new_ac)
-
-                # أضف وحدة تحديث الشحنة إلى قاعدة البيانات
                 db.session.add(s)
-
-                # أضف وحدة السجل الجديد للمحفظة إلى قاعدة البيانات
                 db.session.add(new_wl)
                 db.session.commit()
-            
                 return redirect(f'/track/{barcode}')
             else:
                 db.session.add(new_ac)
@@ -274,6 +323,11 @@ def changstates(barcode):
                 return redirect(f'/track/{barcode}')
         else:
             return "الباركود غير موجود"
+@app.route('/profile')
+def profile():
+    username = session['username']
+    shippers = Shippers.query.filter_by(username=username).first()
+    return render_template('profile.html', info=shippers, paget='الملف الشخصي')
 @app.route('/viwewallets')
 def viwew():
     users = Shippers.query.all()
@@ -312,10 +366,11 @@ def submitS():
                 Shipper_id = new_shipper.id,
                 dues = 0
             )
-            
+            newp = Dprice(sid=new_shipper.id)
             # Add the new_shipper object to the database session
             db.session.add(new_shipper)
             db.session.add(new_wallet)
+            db.session.add(newp)
             db.session.commit()
 
             return render_template('adds.html',mes='ok')
@@ -343,7 +398,7 @@ def submit_delivery_form():
             return render_template('addd.html',mes='error')
 @app.route('/adds1', methods=['POST'])
 def adds1():
-    try:
+    # try:
         charger = request.form.get('charger')
         name = request.form.get('name')
         phone1 = request.form.get('phone1')
@@ -354,39 +409,147 @@ def adds1():
         address = request.form.get('address')
         price = request.form.get('price')
         shipping_price = request.form.get('shipping_price')
-        delivery = request.form.get('delivery')
-        charge_for_me = request.form.get('charge_for_me')
-
+        how = request.form.get('how')
         shipper = Shippers.query.filter_by(username=charger).first()
+        if how =='esh':
+            if shipper:
+                shipment = Shipment(
+                    barcode=barcode_generator(),
+                    status='New Add',
+                    shipper_username=shipper.username,
+                    shipper_name=shipper.name,
+                    shipper_phone_1=shipper.phone1,
+                    shipper_phone_2=shipper.phone2,
+                    shipper_address=shipper.address,
+                    shipper_city=shipper.city,
+                    shipper_wallet_code=shipper.wallet_code,
+                    shipper_note=charger_note,
+                    recipient_name=name,
+                    recipient_phone_1=phone1,
+                    recipient_phone_2=phone2,
+                    recipient_address=address,
+                    recipient_city=governorate,
+                    recipient_note=receiver_note,
+                    pprice=price,
+                    dprice=shipping_price,
+                    date=get_current_time(),
+                    shipment_status = 'في انتظار القبول',
+                    how=how
+                )
+            
 
-        if shipper:
-            shipment = Shipment(
-                barcode = barcode_generator(),
-                status = 'New Add',
-                shipper_username=shipper.username,
-                shipper_name=shipper.name,
-                shipper_phone_1=shipper.phone1,
-                shipper_phone_2=shipper.phone2,
-                shipper_address=shipper.address,
-                shipper_city = shipper.city,
-                shipper_wallet_code = shipper.wallet_code,
-                shipper_note = charger_note,
-                recipient_name = name,
-                recipient_phone_1 = phone1,
-                recipient_phone_2 = phone2,
-                recipient_address = address,
-                recipient_city = governorate,
-                recipient_note =receiver_note,
-                pprice = price,
-                dprice = shipping_price,
-                tprice= int(price)+int(shipping_price),
-                date=get_current_time()
-            )
-            print(get_current_time())
-            db.session.add(shipment)
-            db.session.commit()
-            return render_template('addushipment.html',mes='ok')
-    except :return render_template('addushipment.html',mes='error')
+                shipment_payload = {
+                    "fromAddress": "عنواني",
+                    "fromPhone": "240932808923",
+                    "fromContactPerson": "سبيد لنك",
+                    "toCityID": 3,
+                    "toConsigneeName":name,
+                    "toAddress":address,
+                    "toPhone": phone1,
+                    "toMobile": phone2,
+                    "toContactPerson": "احمد",
+                    "price" : price
+                }
+                response_text = save_shipment(shipment_payload)
+                response_list = json.loads(response_text)
+                first_dict = response_list[0]
+                awb_value = first_dict["awb"]
+                print(awb_value)
+                shipment.aws_code=awb_value
+                db.session.add(shipment)
+                
+                shipper.shipments = shipper.shipments + 1 
+                db.session.add(shipper)
+                db.session.commit()
+
+        else:
+                shipment = Shipment(
+                    barcode=barcode_generator(),
+                    status='New Add',
+                    shipper_username=shipper.username,
+                    shipper_name=shipper.name,
+                    shipper_phone_1=shipper.phone1,
+                    shipper_phone_2=shipper.phone2,
+                    shipper_address=shipper.address,
+                    shipper_city=shipper.city,
+                    shipper_wallet_code=shipper.wallet_code,
+                    shipper_note=charger_note,
+                    recipient_name=name,
+                    recipient_phone_1=phone1,
+                    recipient_phone_2=phone2,
+                    recipient_address=address,
+                    recipient_city=governorate,
+                    recipient_note=receiver_note,
+                    pprice=price,
+                    dprice=shipping_price,
+                    date=get_current_time(),
+                    shipment_status = 'في انتظار القبول',
+                    how=how
+                    
+                )
+                db.session.add(shipment)
+                shipper.shipments = shipper.shipments + 1 
+                db.session.add(shipper)
+                db.session.commit()
+
+        return render_template('addushipment.html', mes='ok')
+    # except:
+    #     return render_template('addushipment.html', mes='error')
+    
+@app.route('/update_profile/<int:admin_id>', methods=['GET', 'POST'])
+def update_profile(admin_id):
+    admin = Admins.query.get(admin_id)
+
+    if request.method == 'POST':
+        admin.name = request.form['name']
+        admin.username = request.form['username']
+        admin.password = request.form['password']
+        admin.position = request.form['position']
+        admin.CompanyID = request.form['CompanyID']
+        admin.AccessToken = request.form['AccessToken']
+        admin.Language = request.form['Language']
+        admin.Content_Type = request.form['Content_Type']
+        admin.city = request.form['city']
+        admin.address = request.form['address']
+        admin.phone1 = request.form['phone']
+
+        db.session.commit()
+        return redirect(url_for('setting'))  # Assuming 'setting' is the route for the profile page
+
+    return render_template('setting.html', admin=admin)
+@app.route('/dprice/<int:sid>')
+def dprice(sid):
+    price = Dprice.query.filter_by(sid=sid).first()
+    return render_template('dprice.html',price=price)
+@app.route('/saveprice/<int:sid>', methods=['POST'])
+def save_price(sid):
+    price = Dprice.query.filter_by(sid=sid).first()
+    if price is None:
+            # Handle the case when the price object is not found
+        return "Price not found", 404
+    price.Cairo = request.form.get('cairo')
+    price.Alexandria = request.form.get('Alexandria')
+    price.Giza = request.form.get('giza')
+    price.SharmElSheikh = request.form.get('sharm_el_sheikh')
+    price.Luxor = request.form.get('luxor')
+    price.Aswan = request.form.get('aswan')
+    price.Hurghada = request.form.get('hurghada')
+    price.Ismailia = request.form.get('ismailia')
+    price.Tanta = request.form.get('tanta')
+    price.Mansoura = request.form.get('mansoura')
+    price.PortSaid = request.form.get('port_said')
+    price.Suez = request.form.get('suez')
+    price.Banha = request.form.get('banha')
+    price.AlMahallaAlKubra = request.form.get('al_mahalla_al_kubra')
+    price.Sohag = request.form.get('sohag')
+    price.Qena = request.form.get('qena')
+    price.Asyut = request.form.get('asyut')
+    price.Damietta = request.form.get('damietta')
+    price.Zagazig = request.form.get('zagazig')
+    price.ElArish = request.form.get('el_arish')   
+  
+    db.session.commit()
+    return redirect(f'/dprice/{sid}')
 if __name__ =='__main__':
     with app.app_context():
         db.create_all()

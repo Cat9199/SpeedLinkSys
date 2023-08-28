@@ -190,14 +190,13 @@
             </tr>
         </thead>
         <tbody>
-            
-            {% for log in infoL%}
+           {% for log in infoL%}
             <tr>
                 <td>{{ log.id }}</td>
                 <td>{{ log.date }}</td>
                 <td>{{ log.pprice }}</td>
                 <td>{{ log.barcode }}</td>
-                <td>{{ log.province }}</td>
+                <td>{{ log.shipment_status }}</td>
                 <td><a href="/track/{{log.barcode}}" class="details-btn">تفاصيل</a></td>
             </tr>
             {% endfor %}

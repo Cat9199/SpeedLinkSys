@@ -274,17 +274,10 @@
                     </select> <br><br>
                     <textarea name="address" placeholder='العنوان' cols="40" rows="5"></textarea><br><br>
                     <input type="number" name="price" placeholder="السعر" />
-                    <input type="number" name="shipping_price" placeholder="سعر الشحن" />
-                    <div class="checkbox" style="display: flex; align-items: center; padding: 20px; gap: 20px;">
-                        <label for="delivery">
-                            <span>دليفري</span>
-                            <input type="checkbox" name="delivery" id="delivery">
-                        </label>
-                        <label for="charge_for_me">
-                            <span>اشحن لي</span>
-                            <input type="checkbox" name="charge_for_me" id="charge_for_me">
-                        </label>
-                    </div>
+                    {% if session.user_type == 'admin' %}<select name="how" id="governorate" style="width: 100%;">
+                        <option value="me">ديليفري</option>   
+                        <option value="esh">اشحنلي</option>  
+                        </select> <br><br> {% endif %}
                     <button type="submit">إرسال</button>
                 </form>
             </div>

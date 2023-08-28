@@ -1,14 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Speed link</title>
-
-    <!-- main css file -->
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css')}}" />
-    <link rel="stylesheet" href="css/style.css" />
+{% extends 'base.html' %} {% block content %}
+    
     <style>
         .wallet-container {
             display: flex;
@@ -186,17 +177,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-</head>
 
-<body dir="rtl">
-    <div class="container">
-        <header class="header">
-            <div class="logo">
-                <img src="{{ url_for('static',filename='images/logo.jpg')}}" alt="Speed Link Logo" />
-                <h1 class="name">Speed Link</h1>
-            </div>
-        </header>
-        <br>
+
+
         <div class="wallet-container">
             <div class="wallet-balance">
                 <div class="curved-rectangle">
@@ -338,16 +321,4 @@
                 }
             }
         </script>
-        <center>
-            <footer class="footer">
-                <p>
-                    &copy; Develped by
-                    <a href="#">Abdulrahman Nasr</a> and
-                    <a href="#">Baraa Mohamed</a>
-                </p>
-            </footer>
-        </center>
-    </div>
-</body>
-
-</html>
+        {% endblock %}

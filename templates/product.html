@@ -135,7 +135,7 @@
         </center>
         <div class="status-list">
             {% for s in D %}
-            <div class="status-item {% if s.state == info.province %}active{% endif %}">
+            <div class="status-item {% if s.state == info.shipment_status %}active{% endif %}">
                 <div class="status-content">
                     <h3>{{ s.state }}</h3>
                     <p>{{ s.created_at }}</p>
