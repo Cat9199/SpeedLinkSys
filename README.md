@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png" alt="SpeedLink Logo" width="512">
 </p>
 
-# SpeedLink Flask Application
+## SpeedLink Flask Application
 
 
 SpeedLink is a Flask-based web application that manages shipments, shippers, deliveries, and related functionalities.
