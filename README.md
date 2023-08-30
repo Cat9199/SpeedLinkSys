@@ -31,7 +31,7 @@ This application provides functionalities for managing shipments, shippers, deli
 
 1. Clone the repository to your local machine:
 ```
-git clone https://github.com/your-username/speedlink-flask-app.git
+git clone https://github.com/Cat9199/speedlink-flask-app.git
 ```
 
 2. Navigate to the project directory:
