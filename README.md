@@ -36,7 +36,7 @@ git clone https://github.com/Cat9199/SpeedLinkSys.git
 
 2. Navigate to the project directory:
 ```
-cd speedlink-flask-app
+cd SpeedLinkSys
 ```
 
 3. Install the required dependencies using pip:
