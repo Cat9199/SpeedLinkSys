@@ -1,0 +1,100 @@
+{% extends 'base.html' %} 
+
+
+{% block content %}
+    <style>
+        .form-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        form {
+            background-color: #ffffff;
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        /* Styling for the select element */
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            appearance: none; 
+            background-image: url("arrow.png"); 
+            background-repeat: no-repeat;
+            background-position: right center;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+        }
+
+        select:hover {
+            border-color: #000;
+        }
+
+        button {
+            background-color: #000000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        button:hover {
+            background-color: #000;
+        }
+
+        /* إضافة بعض المسافة بين النماذج */
+        form + form {
+            margin-left: 20px;
+        }
+        
+    </style>
+<div class="form-container">
+    <form method="post" action="/pa">
+        <h2>طباعت الكل</h2>
+        <button type="submit" id="button1">طلب طباعة</button>
+    </form>
+    <form method="post" action="/pud">
+        <h2>طباعة لمستخدم محدد بتاريخ محدد</h2>
+        <label for="dropdown">اسم الشاحن:</label>
+        <select name="'username" id="dropdown">
+            <option value=""></option>
+        </select>
+        <br>
+        <label for="date">إدخال التاريخ:</label>
+        <input name="date" type="date" id="date">
+        <br>
+        <button type="submit">طلب طباعة</button>
+    </form>
+    <form method="post" action="/pd">
+        <h2>طباعة للتاريخ</h2>
+        <label for="date2">إدخال التاريخ:</label>
+        <input type="date" id="date2">
+        <br>
+        <button name="date" type="submit" id="button3">طلب طباعة</button>
+    </form>
+</div>
+  
+{% endblock %}

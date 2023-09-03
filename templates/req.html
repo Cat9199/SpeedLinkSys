@@ -1,82 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
-<br><br><link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
-  <style>
-    /* أسلوب عام للجدول */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    /* أسلوب خلايا العنوان */
-    th {
-      background-color: red;
-      color: white;
-      text-align: right;
-      padding: 12px;
-      font-weight: 600;
-    }
-
-    /* أسلوب خلايا البيانات */
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #f0f0f0;
-      text-align: right;
-    }
-
-    /* تبديل لون خلفية الصفوف بشكل متناوب */
-    tr:nth-child(even) {
-      background-color: #f8f8f8;
-    }
-
-    /* تأثير تحويل الخلفية عند التحويم بالصفوف */
-    tr:hover {
-      background-color: #f0f0f0;
-      transition: background-color 0.3s ease-in-out;
-    }
-
-    /* تحديد عرض أقصى لحاوية الجدول */
-    .table-container {
-      max-width: 600px;
-      margin: 20px auto;
-    }
-
-    /* إضافة حدود لطيفة للجدول */
-    table {
-      border: 1px solid #f0f0f0;
-    }
-
-    /* أسلوب خلايا العنوان والبيانات */
-    th, td {
-      text-align: right;
-    }
-
-    /* أسلوب خلايا العنوان بطريقة محددة */
-    th:first-child {
-      border-top-right-radius: 10px;
-    }
-
-    /* أسلوب خلايا العنوان بطريقة محددة */
-    th:last-child {
-      border-top-left-radius: 10px;
-    }
-
-    /* أسلوب خلايا البيانات بطريقة محددة */
-    td:first-child {
-      border-bottom-right-radius: 10px;
-    }
-
-    /* أسلوب خلايا البيانات بطريقة محددة */
-    td:last-child {
-      border-bottom-left-radius: 10px;
-    }
-    .operations-table {
+{% extends 'base.html' %} {% block content %}
+<style>
+        .operations-table {
             text-align: center;
             margin: 20px;
         }
@@ -97,6 +21,9 @@
             padding: 10px;
             border-bottom: 1px solid #000;
         }
+        .operations-table th{
+            color: #fff;
+        }
         
         .operations-table th {
             background-color: #000;
@@ -114,74 +41,12 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
         }
-        
-        @media screen and (max-width: 768px) {
-            .wallet-balance {
-                flex-direction: column;
-            }
-            .wallet-card {
-                grid-template-columns: 1fr;
-                margin-top: 40px;
-            }
-            .operations-table {
-                overflow-x: auto;
-            }
-            .curved-rectangle {
-                width: 100%;
-            }
-        }
-        
-        body {
-            background-color: #fff;
-        }
-        .code {
-    font-family: 'barcode font', sans-serif;
-    font-size : 30px;
-}
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  
-  <!-- Chart.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-  
-  <!-- Flex container for chart and table -->
-  <div style="display: flex; justify-content: space-between;">
-    <!-- Chart container -->
-    <div class="canvas-container" style="flex: 1;margin: 50px 0 0 0;">
-        <h2>احصائية الشحنات</h2>
-    
-      <canvas id="myChart" style="max-width: 600px;"></canvas>
-    </div>
-    
-    <!-- Table container -->
-    <div style="flex: 1; padding-left: 20px;">
-        <table border="1" id="data-table">
-            <thead>
-                <tr>
-                    <th>الحالة</th>
-                    <th>العدد</th>
-                </tr>
-            </thead>
-            <tbody>
-              <tr><td>شحنة جديدة</td><td>22</td></tr>
-              <tr><td>لم يتم استلامها</td><td>10</td></tr>
-              <tr><td>تم استلامها</td><td>8</td></tr>
-              <tr><td>تم توصيل الشحنة</td><td>20</td></tr>
-              <tr><td>تم تغليفها</td><td>15</td></tr>
-              <tr><td>سلم لي شحنتي</td><td>8</td></tr>
-              <tr><td>معلومات غير متاحة</td><td>12</td></tr>
-              <tr><td>رفض استلامها</td><td>5</td></tr>
-            </tbody>
-        </table>
-    </div>
-  </div><br><br>
-  <div class="operations-table">
-    <h2>جدول الشحنات</h2>{% if infoL %}
+       
+</style>
+<div class="operations-table">
+    <h2>جدول الطلبات</h2>{% if infoL %}
     <table>
         <thead>
             <tr>
@@ -191,6 +56,8 @@
                 <th>الباركود</th>
                 <th>الحالة</th>
                 <th>تفاصيل</th>
+                <th>قبول</th>
+                <th>قبول في اشحنلي</th><th>رفض</th>
             </tr>
         </thead>
         <tbody>
@@ -199,9 +66,12 @@
                 <td>{{ log.id }}</td>
                 <td>{{ log.date }}</td>
                 <td>{{ log.pprice }}</td>
-                <td><p class="code">{{ log.barcode }}</p></td>
+                <td>{{ log.barcode }}</td>
                 <td>{{ log.shipment_status }}</td>
-                <td><a href="/track/{{log.barcode}}" class="details-btn">تفاصيل</a></td>
+                <td><a href="/track/{{log.barcode}}"  class="details-btn">تفاصيل</a></td>
+                <td><a href="/ac/{{ log.id }}" style='background-color:green' class="details-btn">قبول</a></td>
+                <td><a href="/acs/{{ log.id }}" style='background-color:green' class="details-btn">إشحن لي</a></td>
+                <td><a href="/del/{{log.id}}" style='background-color:red' class="details-btn">رفض</a></td>
             </tr>
             {% endfor %}
             <!-- Add more rows here as needed -->
@@ -217,47 +87,4 @@
     {% endif %}
 </div>
 
-  <script>
-    // Get xValues and yValues from the table cells
-    var xValues = [];
-    var yValues = [];
-
-    document.querySelectorAll('#data-table tbody tr').forEach((row) => {
-        var cells = row.querySelectorAll('td');
-        xValues.push(cells[0].textContent);
-        yValues.push(parseInt(cells[1].textContent));
-    });
-
-    // Rest of your Chart.js code
-    var barColors = [
-        '#b91d47',
-        '#00aba9',
-        '#2b5797',
-        '#e8c3b9',
-        '#1e7145',
-        '#ffaabb',
-        '#aa00ff',
-   
-    ];
-
-    new Chart('myChart', {
-        type: 'pie',
-        data: {
-            labels: xValues,
-            datasets: [{
-                backgroundColor: barColors,
-                data: yValues,
-            }],
-        },
-        options: {
-            legend: false,
-            title: {
-                display: false,
-                text: 'إنتاج النبيذ حول العالم 2018',
-            },
-        },
-    });
-
-  </script>
-  
 {% endblock %}

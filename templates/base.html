@@ -131,7 +131,24 @@
         flex: 1;
         padding: 30px 20% 0 10%;
       }
+      .link svg{
+        margin: 0 0 0 10px;
+      }
+      .notification-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff; /* قم بتغيير اللون حسب نوع الإشعار */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+
+  }
     </style>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/logob.png') }}">
   </head>
   <body dir="rtl">
     <div class="sidebar">
@@ -157,20 +174,13 @@
           /></svg
         >لوحة التحكم</a
       >
-      <a href="/notifications" class="link"
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          fill="currentColor"
-          class="bi bi-bell-fill"
-          viewBox="0 0 16 16"
-        >
-          <path
-            d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"
-          /></svg
-        >الإشعارات</a
-      >
+      <a href="/notifications" class="link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"></path>
+        </svg>الإشعارات
+        <div class="notification-num" style="display: inline; border-radius: 50%; background-color: #fff; color: #000; padding: 4px 8px;">{{ session.numn }}</div>
+    </a>
+    
       {% if session.user_type == 'shipper' %}
       <a href="/profile" class="link"
         ><svg
@@ -206,7 +216,7 @@
         المحفظة</a
       >
       {%endif%}
-
+      {% if session.user_type == 'admin' %}
       <a href="/setting" class="link"
         ><svg
           xmlns="http://www.w3.org/2000/svg"
@@ -221,6 +231,18 @@
           /></svg
         >الإعدادات</a
       >
+      <a href="/req" class="link"
+      ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-square-fill" viewBox="0 0 16 16">
+        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm9.354 5.354-6 6a.5.5 0 0 1-.708-.708l6-6a.5.5 0 0 1 .708.708z"/>
+      </svg>الطلبات</a
+    >
+    <a href="/print" class="link"
+    ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+      <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+      <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+    </svg>طباعة</a
+  >
+
       <a href="/users" class="link"
         ><svg
           xmlns="http://www.w3.org/2000/svg"
@@ -235,6 +257,14 @@
           /></svg
         >الحسابات</a
       >
+      
+    <a href="/dashboard" class="link"
+    ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+      <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+    </svg>اعادة تحميل النظام</a
+  ><br>
+      {% endif %}
       <div class="dropdown">
         {% if session.user_type == 'admin' %}
         <button class="dropdown-button">
