@@ -678,4 +678,4 @@ def save_price(sid):
 if __name__ =='__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=1,port=8001)
+    app.run(debug=1,port=8001,host='0.0.0.0')
