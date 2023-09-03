@@ -31,12 +31,20 @@ This application provides functionalities for managing shipments, shippers, deli
 
 1. Clone the repository to your local machine:
 ```
+<<<<<<< HEAD
 git clone https://github.com/your-username/speedlink-flask-app.git
+=======
+git clone https://github.com/Cat9199/SpeedLinkSys.git
+>>>>>>> origin/main
 ```
 
 2. Navigate to the project directory:
 ```
+<<<<<<< HEAD
 cd speedlink-flask-app
+=======
+cd SpeedLinkSys
+>>>>>>> origin/main
 ```
 
 3. Install the required dependencies using pip:
@@ -240,4 +248,8 @@ Contributions are welcome! If you find any issues or want to enhance the applica
 
 ## License
 
+<<<<<<< HEAD
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+=======
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+>>>>>>> origin/main
