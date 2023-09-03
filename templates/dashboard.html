@@ -109,8 +109,8 @@
         }
         
         .details-btn {
-            padding: 1px 10px;
-            background-color: #007bff;
+            /* padding: 1px 10px; */
+            /* background-color: #007bff; */
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -138,10 +138,13 @@
               width: 50% !important;
               height: auto !important;
             }
+            .date{
+              white-space: nowrap;
+            }
         }
         
         body {
-            background-color: #fff;
+            background-color: #ffffff;
         }
         .code {
     font-family: 'barcode font', sans-serif;
@@ -193,23 +196,25 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
                 <th>تاريخ</th>
                 <th>المبلغ</th>
                 <th>الباركود</th>
                 <th>الحالة</th>
-                <th>تفاصيل</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
            {% for log in infoL%}
             <tr>
-                <td>{{ log.id }}</td>
-                <td>{{ log.date }}</td>
+                <!-- <td>{{ log.id }}</td> -->
+                <td class="date"><strong>17-8-2023</strong></td>
                 <td>{{ log.pprice }}</td>
                 <td><p class="code">{{ log.barcode }}</p></td>
                 <td>{{ log.shipment_status }}</td>
-                <td><a href="/track/{{log.barcode}}" class="details-btn">تفاصيل</a></td>
+                <td><a href="/track/{{log.barcode}}" class="details-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#2679e6" class="bi bi-info-square-fill" viewBox="0 0 16 16">
+                  <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                </svg></a></td>
             </tr>
             {% endfor %}
             <!-- Add more rows here as needed -->
