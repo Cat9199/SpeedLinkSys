@@ -10,14 +10,14 @@
     padding: 20px;
     justify-content: flex-start;
   }
-
+  
   /* تعريف أقسام منفصلة للإشعارات العادية وإشعارات المحفظة */
   .notification-column {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
-
+  
   /* تصميم بطاقة الإشعار */
   .notification-card {
     display: flex;
@@ -26,14 +26,27 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     background-color: #fff;
-    width: 600px;
+    max-width: 600px;
   }
-
+  
   /* تصميم أيقونة الإشعار */
   .notification-icon {
     width: 40px;
     height: 40px;
     margin-right: 20px;
+  }
+  @media (max-width:1200px) {
+    .notification-container{
+      flex-direction: column;
+      padding: 0;
+    }
+    .notification-card{
+      margin: 0 auto;
+      width: 100%;
+    }
+    .notification-icon{
+      margin-right: 0;
+    }
   }
 
   /* تصميم نوع الإشعار (أيقونة) */
