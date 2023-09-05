@@ -3,6 +3,7 @@ from modules.barcode_extractor import extract_barcode_data
 from modules.sendmail import send_daily_report_email
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from datetime import date
 import requests
 import datetime
 import random
@@ -156,6 +157,7 @@ def save_shipment(payload):
     payload['fromAddress'] = info.address
     payload['fromPhone'] = info.phone1
     
+    
     print(payload)
     response = requests.post(reqUrl, json=payload, headers=headersList)
     return response.text
@@ -296,10 +298,26 @@ def dashboard():
         shipper = Shippers.query.filter_by(username=username).first()
         return render_template('dashboard.html',  paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoS=shipper,infoL=shinfo)
     elif user_type == 'delivery':
-        return render_template('delivery-dashboard.html', user_type=user_type, username=username)
+        de = Delivery.query.filter_by(username=username).first()
+        sh = Shipment.query.filter_by(delivery_id=de.id,status='New Add',delivery_date=date.today()).all()
+        
+        return render_template('delivery-dashboard.html', user_type=user_type, username=username,sh=sh)
     else:
         return redirect('/login')
+@app.route('/stopshipping/<int:id>')
+def stopshipping(id):
+    s = Shipment.query.filter_by(id=id).first()
+    s.status = 'stop'
+    s.delivery_date = None
+    s.delivery_id = None
+    db.session.commit()
+    return redirect('/dashboard')
+@app.route('/stop')
+def stop():
+    log = Shipment.query.filter_by(delivery_date=None,status='stop').all()
+    u = Delivery.query.all()
     
+    return render_template('sendtodelivery.html',infoL=log,u=u)
 @app.route('/makeasreed/<int:id>')
 def makeasreed(id):
     notf = Notifications.query.filter_by(id=id).first()
@@ -323,6 +341,22 @@ def addushipment():
 @app.route('/addfile')
 def addfile():
     return render_template('addfile.html')
+@app.route('/sendtodelivery')
+def sendtodelivery():
+    log = Shipment.query.filter_by(delivery_date=None)
+    u = Delivery.query.all()
+    return render_template('sendtodelivery.html',infoL=log,u=u)
+@app.route('/setship', methods=['POST'])
+def setship():
+    Deliveryid = request.form.get('dvid')
+    data = request.form.get('date')
+    sid = request.form.get('sid')
+    s = Shipment.query.filter_by(id=sid).first()
+    s.delivery_id = Deliveryid
+    s.delivery_date = data
+    db.session.commit()
+    return redirect('/sendtodelivery')
+
 @app.route('/viweshipping')
 def viweshipping():
     s = Shipment.query.filter_by(status='New Add').all()
@@ -507,7 +541,7 @@ def acs(id):
     return redirect('/req')
 @app.route('/adds1', methods=['POST'])
 def adds1():
-    try:
+    # try:
         charger = request.form.get('charger')
         name = request.form.get('name')
         phone1 = request.form.get('phone1')
@@ -518,9 +552,63 @@ def adds1():
         print(get_data_value(governorate))
         address = request.form.get('address')
         price = request.form.get('price')
-        shipping_price = request.form.get('shipping_price')
         how = request.form.get('how')
+        shipping_price = 100
         shipper = Shippers.query.filter_by(username=charger).first()
+        dpricee = Dprice.query.filter_by(sid=shipper.id).first()
+        if governorate == '1' :
+            shipping_price = dpricee.p1
+        elif governorate == '2' :
+            shipping_price = dpricee.p2
+        elif governorate == '3' :
+            shipping_price = dpricee.p3
+        elif governorate == '4' :
+            shipping_price = dpricee.p4
+        elif governorate == '5' :
+            shipping_price = dpricee.p5
+        elif governorate == '6' :
+            shipping_price = dpricee.p6
+        elif governorate == '7' :
+            shipping_price = dpricee.p7
+        elif governorate == '8' :
+            shipping_price = dpricee.p8
+        elif governorate == '9' :
+            shipping_price = dpricee.p9
+        elif governorate == '10' :
+            shipping_price = dpricee.p10
+        elif governorate == '11' :
+            shipping_price = dpricee.p11
+        elif governorate == '12' :
+            shipping_price = dpricee.p12
+        elif governorate == '13' :
+            shipping_price = dpricee.p13
+        elif governorate == '14' :
+            shipping_price = dpricee.p14
+        elif governorate == '15' :
+            shipping_price = dpricee.p15
+        elif governorate == '16' :
+            shipping_price = dpricee.p16
+        elif governorate == '17' :
+            shipping_price = dpricee.p17
+        elif governorate == '18' :
+            shipping_price = dpricee.p18
+        elif governorate == '19' :
+            shipping_price = dpricee.p19
+        elif governorate == '20' :
+            shipping_price = dpricee.p20
+        elif governorate == '21' :
+            shipping_price = dpricee.p21
+        elif governorate == '22' :
+            shipping_price = dpricee.p22
+        elif governorate == '23' :
+            shipping_price = dpricee.p23
+        elif governorate == '24' :
+            shipping_price = dpricee.p24
+        elif governorate == '25' :
+            shipping_price = dpricee.p25
+        elif governorate == '26' :
+            shipping_price = dpricee.p26
+        tprice = price+shipping_price
         if how =='esh':
             if shipper:
                 shipment = Shipment(
@@ -542,6 +630,7 @@ def adds1():
                     recipient_note=receiver_note,
                     pprice=price,
                     dprice=shipping_price,
+                    tprice=tprice,
                     date=get_current_time(),
                     shipment_status = 'في انتظار القبول',
                     how=how
@@ -549,16 +638,14 @@ def adds1():
             
 
                 shipment_payload = {
-                    "fromAddress": "عنواني",
-                    "fromPhone": "240932808923",
                     "fromContactPerson": "سبيد لنك",
-                    "toCityID": 3,
+                    "toCityID": int(governorate),
                     "toConsigneeName":name,
                     "toAddress":address,
                     "toPhone": phone1,
                     "toMobile": phone2,
-                    "toContactPerson": "احمد",
-                    "price" : price
+                    "toContactPerson": name,
+                    "price" : tprice
                 }
                 response_text = save_shipment(shipment_payload)
                 response_list = json.loads(response_text)
@@ -598,6 +685,7 @@ def adds1():
                     recipient_note=receiver_note,
                     pprice=price,
                     dprice=shipping_price,
+                    tprice = tprice,
                     date=get_current_time(),
                     shipment_status = sh,
                     how=how
@@ -609,8 +697,8 @@ def adds1():
                 db.session.commit()
 
         return render_template('addushipment.html', mes='ok')
-    except:
-        return render_template('addushipment.html', mes='error')
+    # except:
+    #     return render_template('addushipment.html', mes='error')
     
 @app.route('/update_profile/<int:admin_id>', methods=['GET', 'POST'])
 def update_profile(admin_id):

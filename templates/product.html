@@ -5,7 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Speed link</title>
-
+    <link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
+   
     <!-- main css file -->
     <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static',filename='css/product.css') }}" />
@@ -39,11 +41,13 @@
             font-size: 50px;
             text-align: center;
             margin-top: 10px;
+            font-family: 'barcodeFont', Arial, sans-serif;
+         
         }
         
         .barcode p {
-            font-family: 'Libre Barcode 39';
-            font-size: 40px;
+            font-family: 'barcodeFont', Arial, sans-serif;
+            font-size: 24px;
         }
         
         select {
@@ -93,7 +97,7 @@
             <div class="header-content">
                 {% if session.user_type == 'delivery' or session.user_type == 'admin' or session.user_type == 'shipper'%}
 
-                <a href="/stopshipping" class="cta-btn" style="background-color:red;">إيقاف الشحن</a> {% endif %}
+                <a href="/stopshipping/{{ info.id }}" class="cta-btn" style="background-color:red;">إيقاف الشحن</a> {% endif %}
             </div>
         </header>
         <br>

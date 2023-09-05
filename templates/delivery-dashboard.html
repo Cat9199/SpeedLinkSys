@@ -285,7 +285,9 @@
                 <button id="button2">تحقق</button>
             </div>
         </center>
+        
         <div class="grid-container">
+            {% for s in sh %}
             <div class="card">
                 <br />
                 <div class="card-header">
@@ -294,30 +296,31 @@
                 </div>
                 <div class="card-content">
                     <p>
-                        <strong>اسم المشحون إليه:</strong> John Doe
+                        <strong>اسم المشحون إليه:</strong> {{ s.recipient_name }}
                     </p>
                     <p>
-                        <strong>إسم الشاحن:</strong> Speed Link
+                        <strong>إسم الشاحن:</strong> {{ s.shipper_name }}
                     </p>
                     <p>
-                        <strong>رقم المشحون إليه:</strong> 123456789
+                        <strong>رقم المشحون إليه:</strong> {{ s.recipient_phone_1 }}
                     </p>
                     <p>
-                        <strong>عنوان المشحون إليه:</strong> 123 Main St, City
+                        <strong>عنوان المشحون إليه:</strong> {{ s.recipient_address }}
                     </p>
                     <p>
-                        <strong>التاريخ:</strong> 2023-08-03
+                        <strong>التاريخ:</strong> {{ s.delivery_date }}
                     </p>
                     <p>
-                        <strong>الحالة:</strong> قيد التنفيذ
-                    </p>
+                        <strong>الحالة:</strong> {{ s.shipment_status }}                </p>
                 </div>
                 <div class="card-footer">
-                    <a href="product.html" class="btn">المزيد</a>
+                    <a href="/track/{{ s.barcode }}" class="btn">المزيد</a>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
+    
     <center>
         <footer class="footer">
             <p>
