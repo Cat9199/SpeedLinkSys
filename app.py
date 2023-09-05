@@ -210,6 +210,18 @@ def get_current_time():
     current_time = datetime.datetime.now(egypt_timezone)
     current_time = current_time.replace(microsecond=0, tzinfo=None)
     return current_time
+@app.route('/download_database')
+def download_database():
+    try:
+        # Replace 'your_database.db' with the actual path to your database file
+        db_file_path = './instance/speedlink.db'
+        day = date.today()
+        # Provide a name for the downloaded file (shown to the user)
+        download_filename = f'db{day}.db'
+        
+        return send_file(db_file_path, as_attachment=True, download_name=download_filename)
+    except Exception as e:
+        return str(e)
 @app.route('/setting')
 def setting():
     username = session['username']
