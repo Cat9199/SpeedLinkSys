@@ -1,27 +1,19 @@
-from flask import Flask, redirect, url_for, request, send_file,jsonify, session, render_template,abort
+from flask import Flask,redirect,url_for, request, send_file,jsonify, session, render_template
+from modules.barcode_extractor import extract_barcode_data
+from modules.sendmail import send_daily_report_email
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+import requests
+import datetime
 import random
 import string
-import pytz
-from datetime import datetime
-import requests
-from pyzbar.pyzbar import decode
-from datetime import datetime
-from modules.barcode_extractor import extract_barcode_data
-import pytz
-import requests
 import json
-import datetime
 import pytz
-import random 
-from modules.sendmail import send_daily_report_email
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///speedlink.db'
 app.config['UPLOAD_FOLDER'] = 'img/barcode' 
 app.secret_key = 'speedlink'
 db = SQLAlchemy(app)
-
 class Admins(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -104,11 +96,9 @@ class Shipment(db.Model):
     tprice = db.Column(db.Integer)
     shipment_status = db.Column(db.String(100))
     date = db.Column(db.String(23))
-    accepted = db.Column(db.Boolean)  
     delivery_date = db.Column(db.String(20)) 
     aws_code = db.Column(db.String(25))  
     how = db.Column(db.String(25)) 
-
 class ShippingDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     barcode = db.Column(db.String(15))
@@ -232,7 +222,8 @@ def test():
     return render_template('users.html',users=users)
 @app.route('/print')
 def t():
-    return render_template('printform.html')
+    user = Shippers.query.all()
+    return render_template('printform.html',u=user)
 @app.route('/track/<int:barcode>')
 def track(barcode):
     info = Shipment.query.filter_by(barcode=barcode).first()
@@ -286,6 +277,11 @@ def dashboard():
     user_type = session.get('user_type')
     username = session.get('username')
     if user_type == 'admin':
+        s1 = Shipment.query.filter_by(shipment_status='شحنة جديدة').all()
+        s2 = Shipment.query.filter_by(shipment_status='لم يتم استلامها').all()
+        s3 = Shipment.query.filter_by(shipment_status='تم استلامها').all()
+        s4 = Shipment.query.filter_by(shipment_status='تم توصيل الشحنة').all()
+        
         shinfo = Shipment.query.filter_by(status='New Add').all()
         shinfo = shinfo[::-1]
         notnum = Notifications.query.filter_by(state='0').all()

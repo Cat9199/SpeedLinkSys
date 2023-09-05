@@ -81,7 +81,9 @@
         <h2>طباعة لمستخدم محدد بتاريخ محدد</h2>
         <label for="dropdown">اسم الشاحن:</label>
         <select name="'username" id="dropdown">
-            <option value=""></option>
+            {% for user in u %}
+            <option value="{{ user.username }}">{{ user.username }}</option>
+            {% endfor %}
         </select>
         <br>
         <label for="date">إدخال التاريخ:</label>
