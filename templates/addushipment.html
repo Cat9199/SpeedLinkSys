@@ -249,7 +249,12 @@
     <div class="form" id="form1">
         <h2> اضافت شحنة</h2>
         <form method="post" action="/adds1">
+
+      {% if session.user_type == 'shipper' %}
+            <input type="text" name="charger" placeholder="الشاحن" value="{{ session.username }}" style="display: none;"/>
+            {% else %}
             <input type="text" name="charger" placeholder="الشاحن" />
+            {% endif %}
             <input type="text" name="name" placeholder="الاسم" />
             <input type="tel" name="phone1" placeholder="1 الرقم" />
             <input type="text" name="phone2" placeholder="الرقم 2" />

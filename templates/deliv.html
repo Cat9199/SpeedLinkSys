@@ -54,17 +54,12 @@
 </head>
 <body>
   <div class="user-cards">
-    {% for user in users %}
+    {% for user in info %}
     <div class="user-card">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQw2iMTKL4JKh2Rc0f2RtU8-2QQr-Jj-9TVTA&usqp=CAU" alt="المستخدم 1">
       <h2>{{ user.name }}</h2>
       <p>@{{ user.username }}</p>
-      <p>عدد الشحنات : {{ user.shipments }}</p>
-      <p>رمز المحفظة: {{ user.wallet_code }}</p>
-      <p>الرصيد: {{ user.dues }}جنية مصري</p>
-      <a href="/delete/{{ user.id }}" class="delete-button">حذف</a>
-      <a href="/dprice/{{ user.id }}" class="deliver-button">اسعار الشحن</a>
-      <a href="/exp/{{ user.id }}" class="deliver-button" style="background-color: cornflowerblue;">استخراج فتورة</a>
+      <a href="/tables/{{ user.id }}" class="deliver-button" style="background-color: cornflowerblue;">تفاصيل الشحن</a>
     </div>
     {% endfor %}
   </div>

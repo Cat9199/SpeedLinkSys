@@ -111,8 +111,64 @@
                 <p><strong>الاسم:</strong>{{ info.recipient_name }}</p>
                 <p><strong>رقم الهاتف الاول:</strong>{{ info.recipient_phone_1 }}</p>
                 <p><strong>رقم الهاتف الثاني:</strong>{{ info.recipient_phone_2 }}</p>
-                <p><strong>المدينة:</strong>{{ info.recipient_city }}</p>
+                <p><strong>المدينة:</strong>
+                    {% if info.recipient_city == '1' %}
+                    القاهرة
+                {% elif info.recipient_city == '2' %}
+                    البحيرة
+                {% elif info.recipient_city == '3' %}
+                    الاسكندرية
+                {% elif info.recipient_city == '4' %}
+                    الدلتا
+                {% elif info.recipient_city == '5' %}
+                    الاسماعيلية
+                {% elif info.recipient_city == '6' %}
+                    بورسعيد
+                {% elif info.recipient_city == '7' %}
+                    السويس
+                {% elif info.recipient_city == '8' %}
+                    الشرقية
+                {% elif info.recipient_city == '9' %}
+                    بنى سويف
+                {% elif info.recipient_city == '10' %}
+                    المنيا
+                {% elif info.recipient_city == '11' %}
+                    اسيوط
+                {% elif info.recipient_city == '12' %}
+                    سوهاج
+                {% elif info.recipient_city == '13' %}
+                    الساحل الشمالي
+                {% elif info.recipient_city == '14' %}
+                    مطروح
+                {% elif info.recipient_city == '15' %}
+                    قنا
+                {% elif info.recipient_city == '16' %}
+                    الاقصر
+                {% elif info.recipient_city == '17' %}
+                    اسوان
+                {% elif info.recipient_city == '18' %}
+                    شرم الشيخ
+                {% elif info.recipient_city == '19' %}
+                    الغردقة
+                {% elif info.recipient_city == '20' %}
+                    مدن البحر الاحمر
+                {% elif info.recipient_city == '21' %}
+                    الفيوم
+                {% elif info.recipient_city == '22' %}
+                    خارج التغطية
+                {% elif info.recipient_city == '23' %}
+                    موقوف
+                {% elif info.recipient_city == '24' %}
+                    ش
+                {% elif info.recipient_city == '25' %}
+                    منصورة
+                {% elif info.recipient_city == '26' %}
+                    قليوب
+                {% else %}
+                    City not found
+                {% endif %}</p>
                 <p><strong>العنوان:</strong>{{ info.recipient_address }}</p>
+                <p><strong>اجمالي السعر:</strong>{{ info.tprice }}L.E</p>
                 {% if session.user_type == 'delivery' or session.user_type == 'admin'%}
                 <br>
                 <form action="/changstates/{{ info.barcode }}" method="POST">

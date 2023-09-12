@@ -10,6 +10,7 @@ import random
 import string
 import json
 import pytz
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///speedlink.db'
 app.config['UPLOAD_FOLDER'] = 'img/barcode' 
@@ -100,6 +101,8 @@ class Shipment(db.Model):
     delivery_date = db.Column(db.String(20)) 
     aws_code = db.Column(db.String(25))  
     how = db.Column(db.String(25)) 
+    isprint = db.Column(db.Integer)
+    
 class ShippingDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     barcode = db.Column(db.String(15))
@@ -238,6 +241,16 @@ def test():
 def t():
     user = Shippers.query.all()
     return render_template('printform.html',u=user)
+@app.route('/pud',methods=['POST'])
+def pud():
+    date = request.form.get('date')
+    username = request.form.get('username')    
+    info = Shipment.query.filter_by(delivery_date=date,shipper_username=username).all()
+
+    num_pages = (len(info) + 2) // 3
+    info_chunks = [info[i:i+3] for i in range(0, len(info), 3)]
+    return render_template('print.html', info_chunks=info_chunks, num_pages=num_pages)
+
 @app.route('/track/<int:barcode>')
 def track(barcode):
     info = Shipment.query.filter_by(barcode=barcode).first()
@@ -273,6 +286,10 @@ def logout():
     session['user_type'] = None
     session['username'] = None
     return redirect('/login')
+@app.route("/deliv")
+def deliv():
+    de = Delivery.query.all()
+    return render_template('deliv.html',info=de)
 @app.route('/del/<int:id>')
 def delete(id):
     student = Shipment.query.get_or_404(id)
@@ -281,7 +298,7 @@ def delete(id):
     return redirect('/req')
 @app.route('/pa',methods=['POST'])
 def printq():
-    info = Shipment.query.all()
+    info = Shipment.query.filter_by(isprint=None).all()
     num_pages = (len(info) + 2) // 3
     info_chunks = [info[i:i+3] for i in range(0, len(info), 3)]
     return render_template('print.html', info_chunks=info_chunks, num_pages=num_pages)
@@ -311,7 +328,7 @@ def dashboard():
         return render_template('dashboard.html',  paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoS=shipper,infoL=shinfo)
     elif user_type == 'delivery':
         de = Delivery.query.filter_by(username=username).first()
-        sh = Shipment.query.filter_by(delivery_id=de.id,status='New Add',delivery_date=date.today()).all()
+        sh = Shipment.query.filter_by(delivery_id=de.id,delivery_date=date.today()).all()
         
         return render_template('delivery-dashboard.html', user_type=user_type, username=username,sh=sh)
     else:
@@ -526,31 +543,48 @@ def ac(id):
     s.shipment_status = 'شحنة جديدة'
     db.session.commit()
     return redirect('/req')
+
 @app.route('/acs/<int:id>')
 def acs(id):
     s = Shipment.query.filter_by(id=id).first()
+    if not s:
+        # Handle the case where the shipment with the given ID is not found
+        return "Shipment not found", 404
+
     s.status = 'New Add'
     s.shipment_status = 'شحنة جديدة'
     s.how = 'esh'
+    
     shipment_payload = {
-                    "fromAddress": "عنواني",
-                    "fromPhone": "240932808923",
-                    "fromContactPerson": "سبيد لنك",
-                    "toCityID": int(s.recipient_city),
-                    "toConsigneeName":s.recipient_name,
-                    "toAddress":s.recipient_address,
-                    "toPhone": s.recipient_phone_1,
-                    "toMobile": s.recipient_phone_2,
-                    "toContactPerson": "احمد",
-                    "price" : s.pprice
-                }
+        "fromAddress": "عنواني",
+        "fromPhone": "240932808923",
+        "fromContactPerson": "سبيد لنك",
+        "toCityID": int(s.recipient_city),
+        "toConsigneeName": s.recipient_name,
+        "toAddress": s.recipient_address,
+        "toPhone": s.recipient_phone_1,
+        "toMobile": s.recipient_phone_2,
+        "toContactPerson": "احمد",
+        "price": s.pprice
+    }
+
     response_text = save_shipment(shipment_payload)
-    response_list = json.loads(response_text)
-    first_dict = response_list[0]
-    awb_value = first_dict["awb"]
-    s.aws_code=awb_value
-    db.session.commit()
-    return redirect('/req')
+
+    if not response_text:
+        # Handle the case where the API response is empty
+        return "Empty API response", 500
+
+    try:
+        response_list = json.loads(response_text)
+        first_dict = response_list[0]
+        awb_value = first_dict["awb"]
+        s.aws_code = awb_value
+        db.session.commit()
+        return redirect('/req')
+    except json.JSONDecodeError as e:
+        # Handle the case where the response is not valid JSON
+        print(f"JSONDecodeError: {e}")
+        return "Error in API response", 500
 @app.route('/adds1', methods=['POST'])
 def adds1():
     # try:
@@ -620,7 +654,7 @@ def adds1():
             shipping_price = dpricee.p25
         elif governorate == '26' :
             shipping_price = dpricee.p26
-        tprice = price+shipping_price
+        tprice = int(price)+int(shipping_price)
         if how =='esh':
             if shipper:
                 shipment = Shipment(
@@ -711,7 +745,6 @@ def adds1():
         return render_template('addushipment.html', mes='ok')
     # except:
     #     return render_template('addushipment.html', mes='error')
-    
 @app.route('/update_profile/<int:admin_id>', methods=['GET', 'POST'])
 def update_profile(admin_id):
     admin = Admins.query.get(admin_id)
@@ -771,6 +804,39 @@ def save_price(sid):
     price.p26 = request.form.get('26')
     db.session.commit()
     return redirect(f'/dprice/{sid}')
+@app.route('/tables/<int:id>')
+def render_shipment_tables(id):
+    # Query the unique delivery_date values
+    unique_delivery_dates = db.session.query(Shipment.delivery_date).distinct()
+
+    # Initialize an empty dictionary to store shipments grouped by delivery_date
+    shipments_by_date = {}
+
+    # Populate the dictionary with shipments for each delivery_date
+    for date in unique_delivery_dates:
+        shipments = Shipment.query.filter_by(delivery_date=date[0],delivery_id=id).all()
+        shipments_by_date[date[0]] = shipments
+
+    # Pass the shipments_by_date dictionary to the template
+    return render_template('shipment_tables.html', shipments_by_date=shipments_by_date)
+
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+# Custom error page for 500 to 505
+@app.errorhandler(500)
+@app.errorhandler(501)
+@app.errorhandler(502)
+@app.errorhandler(503)
+@app.errorhandler(504)
+@app.errorhandler(505)
+
+
+def server_error(error):
+    return render_template('500.html')
 if __name__ =='__main__':
     with app.app_context():
         db.create_all()

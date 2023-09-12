@@ -2,128 +2,55 @@
 <link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
  
 <style>
-      
-    /* أسلوب عام للجدول */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
+  .operations-table {
+    text-align: center;
+    margin: 20px;
+    overflow-x: auto;
+}
 
-    /* أسلوب خلايا العنوان */
-    th {
-      background-color: red;
-      color: white;
-      text-align: right;
-      padding: 12px;
-      font-weight: 600;
-    }
+.operations-table h2 {
+    margin-bottom: 20px;
+}
 
-    /* أسلوب خلايا البيانات */
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #f0f0f0;
-      text-align: right;
-    }
+.operations-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
 
-    /* تبديل لون خلفية الصفوف بشكل متناوب */
-    tr:nth-child(even) {
-      background-color: #f8f8f8;
-    }
+.operations-table th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #000;
+}
+.operations-table th{
+    color: #fff;
+}
 
-    /* تأثير تحويل الخلفية عند التحويم بالصفوف */
-    tr:hover {
-      background-color: #f0f0f0;
-      transition: background-color 0.3s ease-in-out;
-    }
+.operations-table th {
+    background-color: #000;
+    font-weight: bold;
+}
 
-    /* تحديد عرض أقصى لحاوية الجدول */
-    .table-container {
-      max-width: 600px;
-      margin: 20px auto;
-    }
+.operations-table td {
+    text-align: center;
+}
 
-    /* إضافة حدود لطيفة للجدول */
-    table {
-      border: 1px solid #f0f0f0;
-    }
+.details-btn {
+    padding: 1px 10px;
+    /* background-color: #007bff; */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+.code {
+font-family: 'barcode font', sans-serif;
+font-size : 30px;
+}
 
-    /* أسلوب خلايا العنوان والبيانات */
-    th, td {
-      text-align: right;
-    }
-
-    /* أسلوب خلايا العنوان بطريقة محددة */
-    th:first-child {
-      border-top-right-radius: 10px;
-    }
-
-    /* أسلوب خلايا العنوان بطريقة محددة */
-    th:last-child {
-      border-top-left-radius: 10px;
-    }
-
-    /* أسلوب خلايا البيانات بطريقة محددة */
-    td:first-child {
-      border-bottom-right-radius: 10px;
-    }
-
-    /* أسلوب خلايا البيانات بطريقة محددة */
-    td:last-child {
-      border-bottom-left-radius: 10px;
-    }
-    .operations-table {
-            text-align: center;
-            margin: 20px;
-        }
-        
-        .operations-table h2 {
-            margin-bottom: 20px;
-        }
-        
-        .operations-table table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-        }
-        
-        .operations-table th,
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #000;
-        }
-        
-        .operations-table th {
-            background-color: #000;
-            font-weight: bold;
-        }
-        
-        .operations-table td {
-            text-align: center;
-        }
-        
-        .details-btn {
-            /* padding: 1px 10px; */
-            /* background-color: #007bff; */
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button{
-            /* padding: 1px 10px; */
-            /* background-color: #007bff; */
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
         @media screen and (max-width: 1200px) {
             .wallet-balance {
                 flex-direction: column;
