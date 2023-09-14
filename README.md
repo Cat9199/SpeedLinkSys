@@ -68,180 +68,208 @@ python app.py
 
 ## Routes
 
-1. `/setting`
+### Download Database
+- **URL:** `/download_database`
+- **Description:** Allows users to download the database file.
 
-   - Description: Displays settings page for the logged-in user.
-   - Method: GET
-   - Template: `setting.html`
-   - Access: Authenticated users (admin, shipper, delivery)
+### Setting
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-2. `/`
+- **URL:** `/setting`
+- **Description:** Displays user settings.
 
-   - Description: Displays the homepage.
-   - Method: GET
-   - Template: `index.html`
-   - Access: Public
+### Index
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-3. `/users`
+- **URL:** `/`
+- **Description:** Home page of the application.
 
-   - Description: Displays a page listing all shippers.
-   - Method: GET
-   - Template: `users.html`
-   - Access: Authenticated users (admin)
+### Users
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-4. `/track/<int:barcode>`
+- **URL:** `/users`
+- **Description:** Displays a list of users.
 
-   - Description: Displays shipment details and tracking for a specific barcode.
-   - Method: GET
-   - Template: `product.html`
-   - Access: Authenticated users (admin, shipper, delivery)
+### Print Form
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-5. `/login`
+- **URL:** `/print`
+- **Description:** Displays a print form.
 
-   - Description: Handles user authentication.
-   - Method: GET, POST
-   - Template: `login.html`
-   - Access: Public
+### Print (POST)
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-6. `/logout`
+- **URL:** `/pud`
+- **Description:** Handles a POST request to print shipments.
 
-   - Description: Logs out the current user and clears session.
-   - Method: GET
-   - Access: Authenticated users
+### Mark as Printed
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-7. `/dashboard`
+- **URL:** `/asprint/<username>`
+- **Description:** Marks shipments as printed.
 
-   - Description: Displays user-specific dashboard with relevant information.
-   - Method: GET
-   - Templates: `dashboard.html` (admin and shipper), `delivery-dashboard.html` (delivery)
-   - Access: Authenticated users (admin, shipper, delivery)
+### Track Shipment
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-8. `/adds`
+- **URL:** `/track/<barcode>`
+- **Description:** Tracks a shipment by barcode.
 
-   - Description: Displays a page for adding a new shipper account.
-   - Method: GET
-   - Template: `adds.html`
-   - Access: Authenticated users (admin)
+### Login
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-9. `/addd`
+- **URL:** `/login`
+- **Description:** Handles user login.
 
-   - Description: Displays a page for adding a new delivery account.
-   - Method: GET
-   - Template: `addd.html`
-   - Access: Authenticated users (admin)
+### Logout
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-10. `/addushipment`
+- **URL:** `/logout`
+- **Description:** Logs the user out.
 
-    - Description: Displays a page for adding a new shipment by a shipper.
-    - Method: GET
-    - Template: `addushipment.html`
-    - Access: Authenticated users (shipper)
+### Deliveries
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-11. `/addfile`
+- **URL:** `/deliv`
+- **Description:** Displays delivery information.
 
-    - Description: Displays a page for adding a file.
-    - Method: GET
-    - Template: `addfile.html`
-    - Access: Authenticated users (admin)
+### Delete Shipment
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-12. `/viweshipping`
+- **URL:** `/del/<id>`
+- **Description:** Deletes a shipment.
 
-    - Description: Displays all shipments for viewing.
-    - Method: GET
-    - Template: `allshipments.html`
-    - Access: Authenticated users (admin)
+### Print Shipment (POST)
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-13. `/viwewallets/<wallet_code>`
+- **URL:** `/pa`
+- **Description:** Handles a POST request to print shipments.
 
-    - Description: Displays wallet details and transactions for a specific shipper.
-    - Method: GET
-    - Template: `wallet.html`
-    - Access: Authenticated users (admin)
+### Dashboard
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-14. `/notifications`
+- **URL:** `/dashboard`
+- **Description:** Displays the dashboard.
 
-    - Description: Displays notifications page.
-    - Method: GET
-    - Template: `notifications.html`
-    - Access: Authenticated users
+### Stop Shipping
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-15. `/extract_barcode`
+- **URL:** `/stopshipping/<id>`
+- **Description:** Stops shipping for a shipment.
 
-    - Description: Handles barcode extraction from images.
-    - Method: POST
-    - Access: Authenticated users
+### Stop
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-16. `/changstates/<int:barcode>`
+- **URL:** `/stop`
+- **Description:** Stops shipments for the delivery.
 
-    - Description: Changes shipment status based on form data.
-    - Method: POST
-    - Access: Authenticated users (admin)
+### Mark as Read Notification
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-17. `/profile`
+- **URL:** `/makeasreed/<id>`
+- **Description:** Marks a notification as read.
 
-    - Description: Displays the profile page for the logged-in user.
-    - Method: GET
-    - Template: `profile.html`
-    - Access: Authenticated users (shipper)
+### Add Shipper
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-18. `/viwewallets`
+- **URL:** `/adds`
+- **Description:** Displays a form to add a shipper account.
 
-    - Description: Displays all shippers' wallets and total assets.
-    - Method: GET
-    - Template: `allw.html`
-    - Access: Authenticated users (admin)
+### Add Delivery
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-19. `/submitS`
+- **URL:** `/addd`
+- **Description:** Displays a form to add a delivery account.
 
-    - Description: Handles submission of shipper registration form.
-    - Method: POST
-    - Access: Authenticated users (admin)
+### Add Shipment
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-20. `/submit_delivery`
+- **URL:** `/addushipment`
+- **Description:** Displays a form to add a new shipment.
 
-    - Description: Handles submission of delivery registration form.
-    - Method: POST
-    - Access: Authenticated users (admin)
+### Add File
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-21. `/adds1`
+- **URL:** `/addfile`
+- **Description:** Displays a form to add a file.
 
-    - Description: Handles submission of shipment creation form by shippers.
-    - Method: POST
-    - Access: Authenticated users (shipper)
+### Send to Delivery
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-22. `/update_profile/<int:admin_id>`
+- **URL:** `/sendtodelivery`
+- **Description:** Sends shipments to delivery.
 
-    - Description: Updates admin profile information.
-    - Method: GET, POST
-    - Template: `setting.html`
-    - Access: Authenticated users (admin)
+### Set Shipment
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-23. `/dprice/<int:sid>`
+- **URL:** `/setship`
+- **Description:** Sets the delivery for a shipment.
 
-    - Description: Displays and manages price settings for a specific shipper.
-    - Method: GET
-    - Template: `dprice.html`
-    - Access: Authenticated users (admin)
+### View Shipments
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-24. `/saveprice/<int:sid>`
+- **URL:** `/viweshipping`
+- **Description:** Displays all shipments.
 
-    - Description: Saves shipping price settings for a specific shipper.
-    - Method: POST
-    - Access: Authenticated users (admin)
+### View Wallets
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-25. `/setting`
+- **URL:** `/viwewallets`
+- **Description:** Displays all wallets.
 
-    - Description: Displays settings page for the logged-in user.
-    - Method: GET
-    - Template: `setting.html`
-    - Access: Authenticated users (admin, shipper, delivery)
+### Notifications
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-26. `/`
+- **URL:** `/notifications`
+- **Description:** Displays notifications.
 
-    - Description: Displays the homepage.
-    - Method: GET
-    - Template: `index.html`
-    - Access: Public
+### Extract Barcode
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/extract_barcode`
+- **Description:** Extracts barcode data from an image.
+
+### Change Shipment Status
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/changstates/<barcode>`
+- **Description:** Changes the shipment status.
+
+### Profile
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/profile`
+- **Description:** Displays user profile.
+
+### View Wallets by Code
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/viwewallets/<wallet_code>`
+- **Description:** Displays wallets by wallet code.
+
+### Update Profile
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/update_profile/<admin_id>`
+- **Description:** Updates the admin profile.
+
+### Delivery Price
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/dprice/<sid>`
+- **Description:** Displays delivery prices.
+
+### Save Price
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/saveprice/<sid>`
+- **Description:** Saves delivery prices.
+
+### Tables
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+
+- **URL:** `/tables/<id>`
+- **Description:** Displays shipment tables grouped by delivery date.
+
 ## Contributing
 
 Contributions are welcome! If you find any issues or want to enhance the application, feel free to submit a pull request.

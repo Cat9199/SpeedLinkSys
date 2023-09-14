@@ -96,6 +96,9 @@ body {
     #printButton {
         display: none;
     }
+    .op{
+        display: none;
+    }
 }
 
 /* Styles for screen display */
@@ -169,10 +172,42 @@ h3 {
     padding: 8px;
     text-align: left;
 }
+#printButton{
+    padding: 10px 10px;
+    background-color: #2483ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none; 
+    display: inline-block;
+    margin: 20px;
+    width: 200px;
+}
 
     </style>
 </head>
-<body>   <div class="p"> {% for page_num in range(num_pages) %}
+<body>   <div class="op">
+    <br><br>
+    <center>
+    <button id="printButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+        <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+        <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+      </svg>طباعت المعلومات</button>
+      
+      
+      {% if u %}
+      
+      <a href="/asprint/{{ u }}" id="printButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-award-fill" viewBox="0 0 16 16">
+        <path d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z"/>
+        <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/>
+      </svg>تصفية كمطبوع</a>
+    {% else %}
+    <a href="/asprint" id="printButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-award-fill" viewBox="0 0 16 16">
+      <path d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z"/>
+      <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/>
+    </svg>تصفية كمطبوع</a>{% endif %}
+    </center></div>
+    <div class="p"> {% for page_num in range(num_pages) %}
   <div class="page">
     {% for item in info_chunks[page_num] %}
       <div class="bill-of-lading">
@@ -218,7 +253,7 @@ h3 {
   </div>
   {% endfor %}
 </div>
-<button id="printButton">Print Page</button>
+
 <script>
     document.getElementById("printButton").addEventListener("click", function () {
       window.print();

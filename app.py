@@ -98,10 +98,11 @@ class Shipment(db.Model):
     tprice = db.Column(db.Integer)
     shipment_status = db.Column(db.String(100))
     date = db.Column(db.String(23))
-    delivery_date = db.Column(db.String(20)) 
+    delivery_date = db.Column(db.String(23)) 
     aws_code = db.Column(db.String(25))  
     how = db.Column(db.String(25)) 
     isprint = db.Column(db.Integer)
+    issend = db.Column(db.Integer)
     
 class ShippingDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -243,14 +244,18 @@ def t():
     return render_template('printform.html',u=user)
 @app.route('/pud',methods=['POST'])
 def pud():
-    date = request.form.get('date')
     username = request.form.get('username')    
-    info = Shipment.query.filter_by(delivery_date=date,shipper_username=username).all()
-
+    info = Shipment.query.filter_by(shipper_username=username,isprint=None).all()
     num_pages = (len(info) + 2) // 3
     info_chunks = [info[i:i+3] for i in range(0, len(info), 3)]
-    return render_template('print.html', info_chunks=info_chunks, num_pages=num_pages)
-
+    return render_template('print.html', info_chunks=info_chunks, num_pages=num_pages,u=username)
+@app.route("/asprint/<username>")
+def asprintu(username):
+    s = Shipment.query.filter_by(isprint=None,shipper_username=username).all()
+    for x in s :
+        x.isprint = 1
+    db.session.commit()
+    return redirect('/print')
 @app.route('/track/<int:barcode>')
 def track(barcode):
     info = Shipment.query.filter_by(barcode=barcode).first()
@@ -585,6 +590,29 @@ def acs(id):
         # Handle the case where the response is not valid JSON
         print(f"JSONDecodeError: {e}")
         return "Error in API response", 500
+@app.route("/exp/<int:id>")
+def exp(id):
+    user = Shippers.query.filter_by(id=id).first()
+    ship = Shipment.query.filter_by(shipper_username = user.username,shipment_status='تم توصيل الشحنة',issend=None).all()
+    ship = ship[::-1]
+    p = 0
+    for x in ship:
+        p +=x.pprice
+    return render_template('exp.html',user=user,date = get_current_time(),ship = ship,tp = p)
+@app.route("/f/<int:id>")
+def fid(id):
+    user = Shippers.query.filter_by(id=id).first()
+    ship = Shipment.query.filter_by(shipper_username = user.username,shipment_status='تم توصيل الشحنة',issend=None).all()
+    wallet = Wallets.query.filter_by(wallet_code=user.wallet_code).first()
+    p = 0
+    for x in ship:
+        p +=x.pprice
+    user.dues -= p
+    wallet.dues -= p 
+    for x in ship :
+        x.issend = 1
+    db.session.commit()
+    return redirect('/users')
 @app.route('/adds1', methods=['POST'])
 def adds1():
     # try:
@@ -808,7 +836,7 @@ def save_price(sid):
 def render_shipment_tables(id):
     # Query the unique delivery_date values
     unique_delivery_dates = db.session.query(Shipment.delivery_date).distinct()
-
+    unique_delivery_dates = unique_delivery_dates[::-1]
     # Initialize an empty dictionary to store shipments grouped by delivery_date
     shipments_by_date = {}
 
@@ -833,8 +861,6 @@ def not_found_error(error):
 @app.errorhandler(503)
 @app.errorhandler(504)
 @app.errorhandler(505)
-
-
 def server_error(error):
     return render_template('500.html')
 if __name__ =='__main__':

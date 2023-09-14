@@ -10,9 +10,9 @@
             margin: 20px auto;
         }
 
-        form {
+        .form-container {
             background-color: #ffffff;
-            border: 2px solid #000;
+            border: 2px solid #6776ff;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -37,7 +37,7 @@
         select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #000;
+            border: 2px solid #6776ff;
             border-radius: 5px;
             appearance: none; 
             background-image: url("arrow.png"); 
@@ -49,11 +49,11 @@
         }
 
         select:hover {
-            border-color: #000;
+            border-color: #001aff;
         }
 
         button {
-            background-color: #000000;
+            background-color: #6776ff;
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -63,7 +63,7 @@
         }
 
         button:hover {
-            background-color: #000;
+            background-color: #002fff;
         }
 
         /* إضافة بعض المسافة بين النماذج 
@@ -72,32 +72,32 @@
         }*/
         
     </style>
-<div class="form-container">
+    <center>
+<div class="form-container" style="
+display: block;
+width: 60%;
+">
     <form method="post" action="/pa">
         <h2>طباعت الكل</h2>
-        <button type="submit" id="button1">طلب طباعة</button>
+        <button type="submit" id="button1"style="
+        width: 100%;
+    ">طلب طباعة</button>
     </form>
+    <br><br>
     <form method="post" action="/pud">
         <h2>طباعة لمستخدم محدد بتاريخ محدد</h2>
         <label for="dropdown">اسم الشاحن:</label>
-        <select name="'username" id="dropdown">
+        
+        <select name="username" id="dropdown"> <!-- Remove the single quotes here -->
             {% for user in u %}
             <option value="{{ user.username }}">{{ user.username }}</option>
             {% endfor %}
-        </select>
-        <br>
-        <label for="date">إدخال التاريخ:</label>
-        <input name="date" type="date" id="date">
-        <br>
-        <button type="submit">طلب طباعة</button>
+        </select><br><br>
+        <button type="submit"style="
+        width: 100%;
+    ">طلب طباعة</button>
     </form>
-    <form method="post" action="/pd">
-        <h2>طباعة للتاريخ</h2>
-        <label for="date2">إدخال التاريخ:</label>
-        <input type="date" id="date2">
-        <br>
-        <button name="date" type="submit" id="button3">طلب طباعة</button>
-    </form>
+    
 </div>
-  
+</center>
 {% endblock %}
