@@ -98,7 +98,7 @@ class Shipment(db.Model):
     tprice = db.Column(db.Integer)
     shipment_status = db.Column(db.String(100))
     date = db.Column(db.String(23))
-    delivery_date = db.Column(db.String(23)) 
+    delivery_date = db.Column(db.String(23) ) 
     aws_code = db.Column(db.String(25))  
     how = db.Column(db.String(25)) 
     isprint = db.Column(db.Integer)

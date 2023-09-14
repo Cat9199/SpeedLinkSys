@@ -67,23 +67,29 @@ python app.py
 
 
 ## Routes
-
-### Download Database
-- **URL:** `/download_database`
-- **Description:** Allows users to download the database file.
-
-### Setting
-![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
-
-- **URL:** `/setting`
-- **Description:** Displays user settings.
-
 ### Index
-![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/img/home.png)
 
 - **URL:** `/`
 - **Description:** Home page of the application.
 
+### Setting
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/img/setting.png)
+
+- **URL:** `/setting`
+- **Description:** Displays user settings.
+
+### Login
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/img/login.png)
+
+- **URL:** `/login`
+- **Description:** Handles user login.
+
+### Dashboard
+![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/img/admin.png)
+
+- **URL:** `/dashboard`
+- **Description:** Displays the dashboard.
 ### Users
 ![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
@@ -114,11 +120,6 @@ python app.py
 - **URL:** `/track/<barcode>`
 - **Description:** Tracks a shipment by barcode.
 
-### Login
-![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
-
-- **URL:** `/login`
-- **Description:** Handles user login.
 
 ### Logout
 ![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
@@ -144,11 +145,7 @@ python app.py
 - **URL:** `/pa`
 - **Description:** Handles a POST request to print shipments.
 
-### Dashboard
-![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
 
-- **URL:** `/dashboard`
-- **Description:** Displays the dashboard.
 
 ### Stop Shipping
 ![SpeedLink Logo](https://raw.githubusercontent.com/Cat9199/SpeedLinkSys/main/static/images/logob.png)
@@ -269,6 +266,9 @@ python app.py
 
 - **URL:** `/tables/<id>`
 - **Description:** Displays shipment tables grouped by delivery date.
+### Download Database
+- **URL:** `/download_database`
+- **Description:** Allows users to download the database file.
 
 ## Contributing
 
