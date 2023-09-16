@@ -1,6 +1,7 @@
-from flask import Flask,redirect,url_for, request, send_file,jsonify, session, render_template
+from flask import Flask,redirect,url_for, request, send_file,jsonify, session, render_template,flash
 from modules.barcode_extractor import extract_barcode_data
 from modules.sendmail import send_daily_report_email
+from modules.asyncsys import asyncsys
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from datetime import date
@@ -10,6 +11,7 @@ import random
 import string
 import json
 import pytz
+import pandas as pd
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///speedlink.db'
@@ -165,6 +167,66 @@ def save_shipment(payload):
     print(payload)
     response = requests.post(reqUrl, json=payload, headers=headersList)
     return response.text
+
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part'
+    
+    file = request.files['file']
+
+    if file.filename == '':
+        return 'No selected file'
+
+
+    if file:
+        # Check if the file extension is allowed
+        if file.filename.endswith('.csv'):
+            try:
+                # Read the CSV file using pandas
+                df = pd.read_csv(file)
+
+                # Iterate through the DataFrame and insert data into the database
+                for index, row in df.iterrows():
+                    shipper = Shippers.query.filter_by(username=row['اسم المستخدم']).first()
+
+                    if shipper is not None:  # Check if shipper is found
+                        shipment = Shipment(
+                            shipper_username=row['اسم المستخدم'],
+                            shipper_name=shipper.name,
+                            shipper_phone_1=shipper.phone1,
+                            shipper_phone_2=shipper.phone2,
+                            shipper_city=shipper.city,
+                            shipper_address=shipper.address,
+                            date=get_current_time(),
+                            shipper_wallet_code=shipper.wallet_code,
+                            shipper_note=row['تعليق الشاحن'],
+                            recipient_note=row['تعليق المشحون له'],
+                            recipient_name=row['اسم المشحون الية'],
+                            recipient_phone_1 = row['رقم المشحون الية'],
+                            recipient_phone_2= row['رقم المشحون الية 2'],
+                            recipient_address = row['العنوان'],
+                            recipient_city = row['المدينة'],
+                            pprice=row['سعر الشحنة'],
+                            barcode = barcode_generator(),
+                            status = 'file'
+                        )
+                        db.session.add(shipment)
+                    else:
+                        # Handle the case when no shipper is found for the provided username
+                        return f'No shipper found for username: {row["اسم المستخدم"]}'
+
+                db.session.commit()
+                return 'File uploaded and data added to the database successfully!'
+            except Exception as e:
+                return f'Error processing the file: {str(e)}'
+        else:
+            return 'Invalid file format. Please upload a valid CSV file.'
+
+    
+    return 'File upload failed'
+
 def get_data_value(city_name):
   
     city_data = {
@@ -286,6 +348,41 @@ def login():
         else:
             return render_template('login.html', mess='loginError')
     return render_template('login.html')
+
+@app.route("/async")
+def asynce():
+    s = Shipment.query.filter_by(issend=None, how="esh").all()
+    success_count = 0
+    error_count = 0
+    for x in s:
+        awb = x.aws_code
+        u = Shippers.query.filter_by(username=x.shipper_username).first()
+        w = Wallets.query.filter_by(wallet_code=u.wallet_code).first()
+        s = asyncsys(awb=awb)
+        if s == 'no':
+            success_count += 1
+            new_wl = WalletsLog(
+                    wallet_code=w.wallet_code,
+                    name=u.name,
+                    Shipment_barcode=x.barcode,
+                    amount=int(x.pprice),
+                    created_at=get_current_time()
+                )
+            u.dues = int(u.dues) + int(x.pprice)
+            w.dues = int(w.dues) + int(x.pprice)
+            x.status = 'archiv'
+            x.issend = 1
+            db.session.add(new_wl)
+            db.session.commit()
+        elif s == 'e1':
+            success_count += 1
+        else:
+            error_count += 1
+
+    flash(f'{success_count} شحنات وصلت', 'success')
+    flash(f'{error_count} في الطريق', 'pros')
+    flash(f'{error_count} لم تصل', 'error')
+    return redirect(url_for('dashboard'))
 @app.route('/logout')
 def logout():
     session['user_type'] = None
@@ -371,7 +468,8 @@ def addd():
     return render_template("addd.html",paget='اضافت حساب موصل')
 @app.route('/addushipment')
 def addushipment():
-    return render_template('addushipment.html')
+    sh = Shippers.query.all()
+    return render_template('addushipment.html',sh=sh)
 @app.route('/addfile')
 def addfile():
     return render_template('addfile.html')
@@ -380,17 +478,143 @@ def sendtodelivery():
     log = Shipment.query.filter_by(delivery_date=None)
     u = Delivery.query.all()
     return render_template('sendtodelivery.html',infoL=log,u=u)
+@app.route('/fm')
+def fm():
+    log = Shipment.query.filter_by(status='file')
+    u = Delivery.query.all()
+    return render_template('fm.html',infoL=log,u=u)
 @app.route('/setship', methods=['POST'])
 def setship():
     Deliveryid = request.form.get('dvid')
     data = request.form.get('date')
-    sid = request.form.get('sid')
-    s = Shipment.query.filter_by(id=sid).first()
+    barcode = request.form.get('barcode')
+    s = Shipment.query.filter_by(barcode=barcode).first()
     s.delivery_id = Deliveryid
     s.delivery_date = data
     db.session.commit()
     return redirect('/sendtodelivery')
+@app.route("/setup", methods=['POST'])
+def setup():
+    Deliveryid = request.form.get('dvid')
+    data = request.form.get('date')
+    sid = request.form.get('sid')
+    username =  request.form.get('username')
+    governorate = request.form.get('governorate')
+    s = Shipment.query.filter_by(barcode=sid).first()
+    u = Shippers.query.filter_by(username=username).first()
+    dpricee = Dprice.query.filter_by(sid=u.id).first()
+    if governorate:
+        if governorate == '1' :
+            shipping_price = dpricee.p1
+        elif governorate == '2' :
+            shipping_price = dpricee.p2
+        elif governorate == '3' :
+            shipping_price = dpricee.p3
+        elif governorate == '4' :
+            shipping_price = dpricee.p4
+        elif governorate == '5' :
+            shipping_price = dpricee.p5
+        elif governorate == '6' :
+            shipping_price = dpricee.p6
+        elif governorate == '7' :
+            shipping_price = dpricee.p7
+        elif governorate == '8' :
+            shipping_price = dpricee.p8
+        elif governorate == '9' :
+            shipping_price = dpricee.p9
+        elif governorate == '10' :
+            shipping_price = dpricee.p10
+        elif governorate == '11' :
+            shipping_price = dpricee.p11
+        elif governorate == '12' :
+            shipping_price = dpricee.p12
+        elif governorate == '13' :
+            shipping_price = dpricee.p13
+        elif governorate == '14' :
+            shipping_price = dpricee.p14
+        elif governorate == '15' :
+            shipping_price = dpricee.p15
+        elif governorate == '16' :
+            shipping_price = dpricee.p16
+        elif governorate == '17' :
+            shipping_price = dpricee.p17
+        elif governorate == '18' :
+            shipping_price = dpricee.p18
+        elif governorate == '19' :
+            shipping_price = dpricee.p19
+        elif governorate == '20' :
+            shipping_price = dpricee.p20
+        elif governorate == '21' :
+            shipping_price = dpricee.p21
+        elif governorate == '22' :
+            shipping_price = dpricee.p22
+        elif governorate == '23' :
+            shipping_price = dpricee.p23
+        elif governorate == '24' :
+            shipping_price = dpricee.p24
+        elif governorate == '25' :
+            shipping_price = dpricee.p25, 
+        elif governorate == '26' :
+            shipping_price = dpricee.p26
 
+    if Deliveryid== 'esh':
+        print('i am herr')
+        
+        if not s:
+            # Handle the case where the shipment with the given ID is not found
+            return "Shipment not found", 404
+
+        s.status = 'New Add'
+        s.shipment_status = 'شحنة جديدة'
+        s.how = 'esh'
+                
+        shipment_payload = {
+            "fromAddress": "عنواني",
+            "fromPhone": "240932808923",
+            "fromContactPerson": "سبيد لنك",
+            "toCityID": int(governorate),
+            "toConsigneeName": s.recipient_name,
+            "toAddress": s.recipient_address,
+            "toPhone": s.recipient_phone_1,
+            "toMobile": s.recipient_phone_2,
+            "toContactPerson": "احمد",
+            "price": s.pprice
+        }
+
+        response_text = save_shipment(shipment_payload)
+
+        if not response_text:
+            # Handle the case where the API response is empty
+            return "Empty API response", 500
+
+        try:
+            response_list = json.loads(response_text)
+            first_dict = response_list[0]
+            awb_value = first_dict["awb"]
+            s.aws_code = awb_value
+            s.delivery_id = Deliveryid
+            s.delivery_date = data
+            s.dprice=shipping_price
+            s.tprice=s.pprice +shipping_price
+    
+            s.recipient_city = governorate
+            db.session.commit()
+            return redirect('/fm')
+        except json.JSONDecodeError as e:
+            # Handle the case where the response is not valid JSON
+            print(f"JSONDecodeError: {e}")
+            return "Error in API response", 500
+        
+    else:
+        s.delivery_id = Deliveryid
+        s.delivery_date = data
+    s.dprice=shipping_price
+    s.tprice=s.pprice +shipping_price
+    
+    s.recipient_city = governorate
+    s.status = 'New Add'
+    db.session.commit()
+    return redirect('/fm')
 @app.route('/viweshipping')
 def viweshipping():
     s = Shipment.query.filter_by(status='New Add').all()
@@ -615,7 +839,7 @@ def fid(id):
     return redirect('/users')
 @app.route('/adds1', methods=['POST'])
 def adds1():
-    # try:
+    try:
         charger = request.form.get('charger')
         name = request.form.get('name')
         phone1 = request.form.get('phone1')
@@ -769,10 +993,11 @@ def adds1():
                 shipper.shipments = shipper.shipments + 1 
                 db.session.add(shipper)
                 db.session.commit()
-
-        return render_template('addushipment.html', mes='ok')
-    # except:
-    #     return render_template('addushipment.html', mes='error')
+        sh = Shippers.query.all()
+        return render_template('addushipment.html', mes='ok',sh=sh)
+    except:
+        sh = Shippers.query.all()
+        return render_template('addushipment.html', mes='error',sh=sh)
 @app.route('/update_profile/<int:admin_id>', methods=['GET', 'POST'])
 def update_profile(admin_id):
     admin = Admins.query.get(admin_id)

@@ -1,3 +1,5 @@
+
+import requests
 def asyncsys(awb):
     reqUrl = f"https://vsoftapi.com-eg.net/api/ClientUsers/V6/GetShipmentDetails/{awb}"
 
@@ -20,8 +22,6 @@ def asyncsys(awb):
         for shipment in data["shipmentInfo"]:
             status_name = shipment.get("StatusName")
             reason = shipment.get("Reason").strip()  # Remove leading/trailing whitespace
-            print("StatusName:", status_name)
-            print("Reason:", reason)
 
             if status_name == "Shipment Delivered" and reason == "Collected":
                 return "ok"

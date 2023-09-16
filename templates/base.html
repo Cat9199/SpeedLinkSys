@@ -13,6 +13,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
+  <!-- In your HTML template (e.g., dashboard.html) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
   <style>
     body {
       margin: 0;
@@ -254,7 +257,83 @@
     .hide {
       display: none;
     }
-  </style>
+/* style.css */
+/* style.css */
+/* style.css */
+#flash-messages {
+  position: fixed;
+  bottom: 20px; /* يضع الرسائل في الجزء السفلي من الصفحة مع تباعد من الأسفل */
+  right: 20px; /* يمكن تعديله إلى left إذا كنت تفضل ذلك */
+  z-index: 9999;
+}
+
+.message {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff; /* خلفية بيضاء للرسائل */
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 200%; /* العرض الأقصى للرسائل هو 60% من العرض الكلي للنافذة */
+}
+
+.message-text {
+  flex: 1;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px; /* إضافة تباعد من اليمين للنص داخل الرسالة */
+}
+
+.icon {
+  font-size: 24px;
+  margin-right: 15px;
+  color: #333; /* لون أيقونات أغمق */
+}
+
+.close-button {
+  font-size: 20px;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #333; /* لون أيقونة إغلاق */
+}
+
+.close-button:hover {
+  color: #f44336; /* تغيير لون أيقونة إغلاق عند التمرير بالفأرة عليها */
+}
+
+.progress-container {
+  height: 4px;
+  background-color: #ddd;
+  position: absolute;
+  bottom: 0; /* يوضع شريط التقدم في الجزء السفلي من الرسالة */
+  left: 0;
+  right: 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background-color: #4caf50;
+  animation: progress-animation 3s linear forwards;
+}
+
+@keyframes progress-animation {
+  0% {
+      width: 100%;
+  }
+  100% {
+      width: 0%;
+  }
+}
+
+</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/logob.png') }}" />
 </head>
@@ -340,6 +419,10 @@
           <path
             d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
         </svg>جدولت الشحنات</a>
+        <a href="/fm" class="link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-up-fill" viewBox="0 0 16 16">
+            <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2zm2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2z"/>
+          </svg>الشحنات المرفوعة</a>
       <a href="/print" class="link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
           class="bi bi-printer-fill" viewBox="0 0 16 16">
           <path
@@ -356,7 +439,12 @@
           class="bi bi-person-fill" viewBox="0 0 16 16">
           <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
         </svg>الموصلين</a>
-
+<a href="/async" class="link">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+  </svg>مزامنت السيرفر
+</a>
       <a href="/dashboard" class="link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
           fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
           <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
@@ -370,8 +458,7 @@
           <path
             d="M1 9a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4.5a.5.5 0 0 1 0 1H1v2h4.5a.5.5 0 0 1 0 1H1zm9.5 0a.5.5 0 0 1 0-1H15V6h-4.5a.5.5 0 0 1 0-1H15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4.5z" />
         </svg>تحميل نسخة احتياطية</a><br />
-      {% endif %}
-      {% if session.user_type == 'admin' %}
+
       <div class="dropdown">
         
         <button class="dropdown-button">
@@ -449,13 +536,43 @@
         <p>Loading...</p>
         <div class="loading-spinner"></div>
       </div>
-      
-      
-      <h1>{{ paget }}</h1>
+    <!-- flash_messages.html -->
+<!-- flash_messages.html -->
+
+    <h1>{{ paget }}</h1>
 
       <div class="">{% block content %} {% endblock %}</div>
     </div>
+  </div><!-- flash_messages.html -->
+  <div id="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              <ul class="messages">
+                  {% for category, message in messages %}
+                      <li class="message {{ category }}">
+                          <div class="icon">
+                              {% if category == 'success' %}
+                                  <i class="fas fa-check-circle"></i>
+                              {% elif category == 'error' %}
+                                  <i class="fas fa-exclamation-circle"></i>
+                              {% elif category == 'pros' %}
+                                  <i class="fas fa-spinner fa-spin"></i>
+                              {% endif %}
+                          </div>
+                          <div class="message-text">{{ message }}</div>
+                          <div class="close-button" onclick="this.parentElement.style.display='none';">
+                              <i class="fas fa-times-circle"></i>
+                          </div>
+                          <div class="progress-container">
+                              <div class="progress-bar"></div>
+                          </div>
+                      </li>
+                  {% endfor %}
+              </ul>
+          {% endif %}
+      {% endwith %}
   </div>
+  
   <script>
     // Get references to the sidebar and button
     const sidebar = document.getElementById("sidebar");
@@ -490,7 +607,18 @@
     // Call hideLoading() when the page has finished loading (e.g., in an onload event)
     window.onload = hideLoading;
   </script>
-  
+  <script>
+// script.js
+document.addEventListener('DOMContentLoaded', function () {
+  const flashMessages = document.querySelectorAll('.message');
+  flashMessages.forEach(function (message) {
+      setTimeout(function () {
+          message.style.display = 'none'; // Hide the message
+      }, 3000); // 3000 milliseconds (3 seconds)
+  });
+});
+
+  </script>
 </body>
 
 </html>

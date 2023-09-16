@@ -230,6 +230,7 @@
         </div>
         <div class="success__title" style="margin: 0 10px 0 0;">تم اضافت الشحنة</div>
     </div>
+<br>
 </center>
 
 {% elif mes == 'error'%}
@@ -244,6 +245,7 @@
         </div>
         <div class="error__title" style="margin: 0 10px 0 0;">يبدو أن هناك خطأ ، يرجى المحاولة مرة أخرى</div>
     </div>
+    <br>
 </center>{% endif %}
 <center>
     <div class="form" id="form1">
@@ -253,8 +255,16 @@
       {% if session.user_type == 'shipper' %}
             <input type="text" name="charger" placeholder="الشاحن" value="{{ session.username }}" style="display: none;"/>
             {% else %}
-            <input type="text" name="charger" placeholder="الشاحن" />
+       
+            <select name="charger" id="governorate" style="width: 100%; margin-bottom: 15px;">
+                <option>اسم الشاحن</option>
+                 {% for s in sh %}
+                <option value="{{ s.username }}">{{ s.name }}</option>
+                {% endfor %}
+                </select>
+              
             {% endif %}
+            <br>
             <input type="text" name="name" placeholder="الاسم" />
             <input type="tel" name="phone1" placeholder="1 الرقم" />
             <input type="text" name="phone2" placeholder="الرقم 2" />
