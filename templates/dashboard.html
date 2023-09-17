@@ -166,7 +166,7 @@
     <div class="canvas-container" style="flex: 1;margin: 10px 0 0 0; max-width: 800px;">
         <h2>احصائية الشحنات</h2>
     
-      <canvas id="myChart" style="width: 800px;"></canvas>
+      <canvas id="myChart" style="width: 332px;"></canvas>
     </div>
    </center><br>
     <!-- Table container -->
@@ -179,14 +179,12 @@
                 </tr>
             </thead>
             <tbody>
-              <tr><td>شحنة جديدة</td><td>22</td></tr>
-              <tr><td>لم يتم استلامها</td><td>10</td></tr>
-              <tr><td>تم استلامها</td><td>8</td></tr>
-              <tr><td>تم توصيل الشحنة</td><td>20</td></tr>
-              <tr><td>تم تغليفها</td><td>15</td></tr>
-              <tr><td>سلم لي شحنتي</td><td>8</td></tr>
-              <tr><td>معلومات غير متاحة</td><td>12</td></tr>
-              <tr><td>رفض استلامها</td><td>5</td></tr>
+              <tr><td>شحنة جديدة</td><td>{{ s1 }}</td></tr>
+              <tr><td>تم استلامها</td><td>{{ s2 }}</td></tr>
+              <tr><td>تم توصيل الشحنة</td><td>{{ s3 }}</td></tr>
+
+        <tr><td>     لم يتم تسليم الشحنة   </td><td>{{ s4 }}</td></tr>
+
             </tbody>
         </table>
     </div>
@@ -243,13 +241,13 @@
 
     // Rest of your Chart.js code
     var barColors = [
-        '#b91d47',
-        '#00aba9',
+       
+       
         '#2b5797',
-        '#e8c3b9',
+        '#00aba9',
+        '#b91d47',  
         '#1e7145',
-        '#ffaabb',
-        '#aa00ff',
+
    
     ];
 
@@ -266,7 +264,7 @@
             legend: false,
             title: {
                 display: false,
-                text: 'إنتاج النبيذ حول العالم 2018',
+
             },
         },
     });

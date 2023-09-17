@@ -105,7 +105,7 @@ class Shipment(db.Model):
     how = db.Column(db.String(25)) 
     isprint = db.Column(db.Integer)
     issend = db.Column(db.Integer)
-    
+    Collector = db.Column(db.Integer)
 class ShippingDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     barcode = db.Column(db.String(15))
@@ -173,59 +173,58 @@ def save_shipment(payload):
 def upload_file():
     if 'file' not in request.files:
         return 'No file part'
-    
     file = request.files['file']
-
     if file.filename == '':
         return 'No selected file'
+    if not file.filename.endswith('.csv'):
+        return 'Invalid file format. Please upload a valid CSV file.'
+    try:
+        df = pd.read_csv(file)
+        results = []
+        for index, row in df.iterrows():
+            shipper = Shippers.query.filter_by(username=row['اسم المستخدم']).first()
+            if shipper is None:
+                results.append({'Status': 'Error', 'Message': f'No shipper found for username: {row["اسم المستخدم"]}'})
+                continue
+            shipment = Shipment(
+                shipper_username=row['اسم المستخدم'],
+                shipper_name=shipper.name,
+                shipper_phone_1=shipper.phone1,
+                shipper_phone_2=shipper.phone2,
+                shipper_city=shipper.city,
+                shipper_address=shipper.address,
+                date=get_current_time(),
+                shipper_wallet_code=shipper.wallet_code,
+                shipper_note=row['تعليق الشاحن'],
+                recipient_note=row['تعليق المشحون له'],
+                recipient_name=row['اسم المشحون الية'],
+                recipient_phone_1=row['رقم المشحون الية'],
+                recipient_phone_2=row['رقم المشحون الية 2'],
+                recipient_address=row['العنوان'],
+                recipient_city=row['المدينة'],
+                pprice=row['سعر الشحنة'],
+                barcode=barcode_generator(),
+                status='file'
+            )
+            results.append({
+                'Status': 'Added',
+                'Message': f'Shipment added for username: {row["اسم المستخدم"]}',
+                'Username': shipment.shipper_username,
+                'Shipment Date': shipment.date.strftime('%Y-%m-%d %H:%M:%S'),  # Format the date as needed
+                'Recipient Name': shipment.recipient_name,
+                'Shipper City': shipment.shipper_city,
+                'Recipient City': shipment.recipient_city
+            })
 
+            db.session.add(shipment)
 
-    if file:
-        # Check if the file extension is allowed
-        if file.filename.endswith('.csv'):
-            try:
-                # Read the CSV file using pandas
-                df = pd.read_csv(file)
+        db.session.commit()
 
-                # Iterate through the DataFrame and insert data into the database
-                for index, row in df.iterrows():
-                    shipper = Shippers.query.filter_by(username=row['اسم المستخدم']).first()
+        # Render the results in an HTML table
+        return render_template('exel.html', results=results)
+    except Exception as e:
+        return f'Error processing the file: {str(e)}'
 
-                    if shipper is not None:  # Check if shipper is found
-                        shipment = Shipment(
-                            shipper_username=row['اسم المستخدم'],
-                            shipper_name=shipper.name,
-                            shipper_phone_1=shipper.phone1,
-                            shipper_phone_2=shipper.phone2,
-                            shipper_city=shipper.city,
-                            shipper_address=shipper.address,
-                            date=get_current_time(),
-                            shipper_wallet_code=shipper.wallet_code,
-                            shipper_note=row['تعليق الشاحن'],
-                            recipient_note=row['تعليق المشحون له'],
-                            recipient_name=row['اسم المشحون الية'],
-                            recipient_phone_1 = row['رقم المشحون الية'],
-                            recipient_phone_2= row['رقم المشحون الية 2'],
-                            recipient_address = row['العنوان'],
-                            recipient_city = row['المدينة'],
-                            pprice=row['سعر الشحنة'],
-                            barcode = barcode_generator(),
-                            status = 'file'
-                        )
-                        db.session.add(shipment)
-                    else:
-                        # Handle the case when no shipper is found for the provided username
-                        return f'No shipper found for username: {row["اسم المستخدم"]}'
-
-                db.session.commit()
-                return 'File uploaded and data added to the database successfully!'
-            except Exception as e:
-                return f'Error processing the file: {str(e)}'
-        else:
-            return 'Invalid file format. Please upload a valid CSV file.'
-
-    
-    return 'File upload failed'
 
 def get_data_value(city_name):
   
@@ -307,13 +306,11 @@ def t():
 @app.route('/pud',methods=['POST'])
 def pud():
     username = request.form.get('username')    
-    info = Shipment.query.filter_by(shipper_username=username,isprint=None).all()
-    num_pages = (len(info) + 2) // 3
-    info_chunks = [info[i:i+3] for i in range(0, len(info), 3)]
-    return render_template('print.html', info_chunks=info_chunks, num_pages=num_pages,u=username)
-@app.route("/asprint/<username>")
-def asprintu(username):
-    s = Shipment.query.filter_by(isprint=None,shipper_username=username).all()
+    info = Shipment.query.filter_by(shipper_username=username).all()
+    return render_template('print.html', info=info)
+@app.route("/asprint")
+def asprintu():
+    s = Shipment.query.filter_by(isprint=None).all()
     for x in s :
         x.isprint = 1
     db.session.commit()
@@ -348,39 +345,55 @@ def login():
         else:
             return render_template('login.html', mess='loginError')
     return render_template('login.html')
-
+@app.route("/archive")
+def archive():
+    utype = session['user_type']
+    if utype == 'admin':
+        infoL = Shipment.query.all()
+        infoL=infoL[::-1]
+        return render_template('archive.html',infoL=infoL)
+    elif utype == 'shipper':
+        infoL=infoL[::-1]
+        infoL = Shipment.query.filter_by(shipper_username=session['username']).all()
+        return render_template('archive.html',infoL=infoL)
+    else:
+        return render_template('404.html')
 @app.route("/async")
 def asynce():
     s = Shipment.query.filter_by(issend=None, how="esh").all()
     success_count = 0
     error_count = 0
+    pros_count =0
     for x in s:
         awb = x.aws_code
         u = Shippers.query.filter_by(username=x.shipper_username).first()
         w = Wallets.query.filter_by(wallet_code=u.wallet_code).first()
         s = asyncsys(awb=awb)
-        if s == 'no':
+        if s == 'ok':
             success_count += 1
             new_wl = WalletsLog(
                     wallet_code=w.wallet_code,
                     name=u.name,
                     Shipment_barcode=x.barcode,
                     amount=int(x.pprice),
+                  
                     created_at=get_current_time()
                 )
+            u.shipments+=1
             u.dues = int(u.dues) + int(x.pprice)
             w.dues = int(w.dues) + int(x.pprice)
             x.status = 'archiv'
             x.issend = 1
+            x.shipment_status = 'تم توصيل الشحنة'
             db.session.add(new_wl)
             db.session.commit()
         elif s == 'e1':
-            success_count += 1
-        else:
             error_count += 1
+        else:
+            pros_count += 1
 
     flash(f'{success_count} شحنات وصلت', 'success')
-    flash(f'{error_count} في الطريق', 'pros')
+    flash(f'{pros_count} في الطريق', 'pros')
     flash(f'{error_count} لم تصل', 'error')
     return redirect(url_for('dashboard'))
 @app.route('/logout')
@@ -401,20 +414,18 @@ def delete(id):
 @app.route('/pa',methods=['POST'])
 def printq():
     info = Shipment.query.filter_by(isprint=None).all()
-    num_pages = (len(info) + 2) // 3
-    info_chunks = [info[i:i+3] for i in range(0, len(info), 3)]
-    return render_template('print.html', info_chunks=info_chunks, num_pages=num_pages)
+    return render_template('print.html', info=info)
 
 @app.route('/dashboard')
 def dashboard():
     user_type = session.get('user_type')
     username = session.get('username')
     if user_type == 'admin':
-        s1 = Shipment.query.filter_by(shipment_status='شحنة جديدة').all()
-        s2 = Shipment.query.filter_by(shipment_status='لم يتم استلامها').all()
-        s3 = Shipment.query.filter_by(shipment_status='تم استلامها').all()
-        s4 = Shipment.query.filter_by(shipment_status='تم توصيل الشحنة').all()
-        
+        s1 = Shipment.query.filter_by(shipment_status='شحنة جديدة').count()
+        s2 = Shipment.query.filter_by(shipment_status='تم استلامها').count()
+        s3 = Shipment.query.filter_by(shipment_status='تم توصيل الشحنة').count()
+        s4 = Shipment.query.filter_by(shipment_status='لم يتم تسليم الشحنة').count()   
+         
         shinfo = Shipment.query.filter_by(status='New Add').all()
         shinfo = shinfo[::-1]
         notnum = Notifications.query.filter_by(state='0').all()
@@ -422,12 +433,16 @@ def dashboard():
         for x in notnum:
             y += 1
         session['numn'] = y
-        return render_template('dashboard.html', paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoL=shinfo)
+        return render_template('dashboard.html', paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoL=shinfo,s1=s1,s2=s2,s3=s3,s4=s4)
     elif user_type == 'shipper':
+        s1 = Shipment.query.filter_by(shipment_status='شحنة جديدة',shipper_username=username).count()
+        s2 = Shipment.query.filter_by(shipment_status='تم استلامها',shipper_username=username).count()
+        s3 = Shipment.query.filter_by(shipment_status='تم توصيل الشحنة',shipper_username=username).count()
+        s4 = Shipment.query.filter_by(shipment_status='لم يتم تسليم الشحنة',shipper_username=username).count()  
         shinfo = Shipment.query.filter_by(shipper_username=username).all()
         shinfo = shinfo[::-1]
         shipper = Shippers.query.filter_by(username=username).first()
-        return render_template('dashboard.html',  paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoS=shipper,infoL=shinfo)
+        return render_template('dashboard.html',  paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoS=shipper,infoL=shinfo,s1=s1,s2=s2,s3=s3,s4=s4)
     elif user_type == 'delivery':
         de = Delivery.query.filter_by(username=username).first()
         sh = Shipment.query.filter_by(delivery_id=de.id,delivery_date=date.today()).all()
@@ -656,7 +671,7 @@ def changstates(barcode):
             new_ac = ShippingDetail(
                 barcode=barcode,
                 state=shipment_status,
-                created_at='19291329    '  
+                created_at=get_current_time()
             )
 
             s.shipment_status = shipment_status
@@ -811,13 +826,12 @@ def acs(id):
         db.session.commit()
         return redirect('/req')
     except json.JSONDecodeError as e:
-        # Handle the case where the response is not valid JSON
         print(f"JSONDecodeError: {e}")
         return "Error in API response", 500
 @app.route("/exp/<int:id>")
 def exp(id):
     user = Shippers.query.filter_by(id=id).first()
-    ship = Shipment.query.filter_by(shipper_username = user.username,shipment_status='تم توصيل الشحنة',issend=None).all()
+    ship = Shipment.query.filter_by(shipper_username = user.username,shipment_status='تم توصيل الشحنة',Collector=None).all()
     ship = ship[::-1]
     p = 0
     for x in ship:
@@ -826,7 +840,7 @@ def exp(id):
 @app.route("/f/<int:id>")
 def fid(id):
     user = Shippers.query.filter_by(id=id).first()
-    ship = Shipment.query.filter_by(shipper_username = user.username,shipment_status='تم توصيل الشحنة',issend=None).all()
+    ship = Shipment.query.filter_by(shipper_username = user.username,shipment_status='تم توصيل الشحنة',Collector=None).all()
     wallet = Wallets.query.filter_by(wallet_code=user.wallet_code).first()
     p = 0
     for x in ship:
@@ -834,7 +848,8 @@ def fid(id):
     user.dues -= p
     wallet.dues -= p 
     for x in ship :
-        x.issend = 1
+        x.Collector = 1
+    
     db.session.commit()
     return redirect('/users')
 @app.route('/adds1', methods=['POST'])

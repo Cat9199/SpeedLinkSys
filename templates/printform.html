@@ -66,38 +66,16 @@
             background-color: #002fff;
         }
 
-        /* إضافة بعض المسافة بين النماذج 
-        form + form {
-            margin-left: 20px;
-        }*/
-        
+
+
     </style>
-    <center>
-<div class="form-container" style="
-display: block;
-width: 60%;
-">
-    <form method="post" action="/pa">
-        <h2>طباعت الكل</h2>
-        <button type="submit" id="button1"style="
-        width: 100%;
-    ">طلب طباعة</button>
-    </form>
-    <br><br>
-    <form method="post" action="/pud">
-        <h2>طباعة لمستخدم محدد بتاريخ محدد</h2>
-        <label for="dropdown">اسم الشاحن:</label>
-        
-        <select name="username" id="dropdown"> <!-- Remove the single quotes here -->
-            {% for user in u %}
-            <option value="{{ user.username }}">{{ user.username }}</option>
-            {% endfor %}
-        </select><br><br>
-        <button type="submit"style="
-        width: 100%;
-    ">طلب طباعة</button>
-    </form>
+    <center><div class="form-container" style="display: block; width: 60%;">
+        <form method="post" action="/pa">
+            <h2>طباعت الكل</h2>
+            <button type="submit" style="width: 100%;">طلب طباعة</button>
+            <br>
+            <a href="/asprint" id="asprintLink" style="width: 100%;">تميز كمطبوع</a>
+        </form>
+        </div>
     
-</div>
-</center>
-{% endblock %}
+    {% endblock %}

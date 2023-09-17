@@ -1,264 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill of Lading</title>
     <link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/barcode-font" rel="stylesheet">
     <style>
-/* Global styles */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
+        /* Style the Bill of Lading container */
+        .bol {
+            width: 210mm;
+            /* A4 width */
+            height: 103mm;
+            /* One-third of A4 height */
+            border: 1px dotted #414141;
+            /* Add a border */
+            padding: 10px;
+            box-sizing: border-box;
+            /* Include padding and border in sizing */
+            /* page-break-before: always; */
+            /* Comment out or remove this line */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-/* Page setup for A4 landscape */
-@page {
-    size: A4 landscape;
-}
+        /* Style the header section */
+        .header {
+            text-align: center;
+            margin: 0 0 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-/* Styles for printing */
-@media print {
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-    }
+        /* Style the logo */
+        .logo {
+            max-width: 100%;
+            height: auto;
+            order: 1;
+        }
 
-    .page {
-        flex-direction: column;
-        margin: 20px;
-    }
+        /* Style the title */
+        h1 {
+            font-size: 18px;
+        }
 
-    .bill-of-lading {
-        flex-basis: 100%;
-        page-break-after: always;
-        padding: 20px;
-        border: 1px solid #ccc;
-        margin-bottom: 20px;
-        height: auto;
-    }
+        /* Style the barcode (you can use a library for this) */
 
-    .barcode {
-        font-family: 'barcodeFont', Arial, sans-serif;
-        font-size: 24px;
-    }
+        .barcode {
+            font-family: 'barcode font', sans-serif;
+            font-size: 50px;
+            order: 3;
+        }
 
-    .company-logo {
-        max-width: 200px;
-    }
+        /* Style the cards */
+        .card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            flex-grow: 1;
+            box-sizing: border-box;
+        }
 
-    h3 {
-        text-align: center;
-        margin: 20px 0;
-    }
+        /* Style the info container */
+        .info {
+            display: flex;
+            justify-content: space-between;
+        }
 
-    .row {
-        display: flex;
-        justify-content: space-between;
-        margin: -10px 0;
-    }
+        /* Style the shipper and recipient sections */
+        .shipper,
+        .recipient {
+            width: 48%;
+            /* Half of the container width with a little gap */
+        }
 
-    .column {
-        flex-basis: 80%;
-        border: #ccc 1px solid;
-        border-radius: 30px;
-        padding: 5px;
-        margin-bottom: 10px;
-    }
+        /* Style the comments box */
+        .comment-box {
+            margin-top: 10px;
+            height: calc(100% - 150px);
+            /* Adjust as needed */
+            /* This will set the comment box height based on the remaining space */
+        }
 
-    .column p {
-        font-size: 12px;
-        padding-left: 10px;
-    }
+        /* Style the print button */
+        #printButton {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
 
-    .column h4 {
-        padding-left: 10px;
-    }
-
-    .additional-info table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    .additional-info th,
-    .additional-info td {
-        border: 1px solid #ccc;
-        padding: 8px;
-        text-align: left;
-    }
-
-    /* Hide the print button when printing */
-    #printButton {
-        display: none;
-    }
-    .op{
-        display: none;
-    }
-}
-
-/* Styles for screen display */
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0px;
-}
-
-.page {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 20px;
-}
-
-.bill-of-lading {
-    flex-basis: 48%;
-    padding: 20px;
-    border: 1px solid #ccc;
-    margin-bottom: 20px;
-    height: 700px;
-}
-
-.barcode {
-    font-family: 'barcode font', sans-serif;
-    font-size: 50px;
-}
-
-.company-logo {
-    max-width: 200px;
-}
-
-h3 {
-    text-align: center;
-    margin: 20px 0;
-}
-
-.row {
-    display: flex;
-    justify-content: space-between;
-    margin: -10px 0;
-}
-
-.column {
-    flex-basis: 80%;
-    border: #ccc 1px solid;
-    border-radius: 30px;
-    padding: 5px;
-}
-
-.column p {
-    font-size: 12px;
-    padding-left: 10px;
-}
-
-.column h4 {
-    padding-left: 10px;
-}
-
-.additional-info table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.additional-info th,
-.additional-info td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
-}
-#printButton{
-    padding: 10px 10px;
-    background-color: #2483ff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none; 
-    display: inline-block;
-    margin: 20px;
-    width: 200px;
-}
-
+        #printButton:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
-<body>   <div class="op">
-    <br><br>
-    <center>
-    <button id="printButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
-        <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
-        <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-      </svg>طباعت المعلومات</button>
-      
-      
-      {% if u %}
-      
-      <a href="/asprint/{{ u }}" id="printButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-award-fill" viewBox="0 0 16 16">
-        <path d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z"/>
-        <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/>
-      </svg>تصفية كمطبوع</a>
-    {% else %}
-    <a href="/asprint" id="printButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-award-fill" viewBox="0 0 16 16">
-      <path d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z"/>
-      <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/>
-    </svg>تصفية كمطبوع</a>{% endif %}
-    </center></div>
-    <div class="p"> {% for page_num in range(num_pages) %}
-  <div class="page">
-    {% for item in info_chunks[page_num] %}
-      <div class="bill-of-lading">
-          <div class="header">
-              <div class="barcode">
-                  <p class="code">{{ item.barcode }}</p>
-              </div>
-              <h3>Bill of Lading</h3>
-              <img
-              src="{{ url_for('static',filename='images/logo.jpg')}}" 
-                  alt="Company Logo"
-                  class="company-logo"
-                  width="50px"
-              />
-          </div>
-          <div class="row">
-              <div class="column shipper">
-                  <h4>Shipper:</h4>
-                  <p>Name: {{ item.shipper_name }}</p>
-                  <p>Address: {{ item.shipper_address }}</p>
-                  <p>Phone 1: {{ item.shipper_phone_1 }}</p>
-                  <p>Phone 2: {{ item.shipper_phone_2 }}</p>
-              </div>
-              <div class="column consignee">
-                  <h4>Consignee:</h4>
-                  <p>Name: {{ item.recipient_name }}</p>
-                  <p>Address: {{ item.recipient_address }}</p>
-                  <p>Phone 1: {{ item.recipient_phone_1 }}</p>
-                  <p>Phone 2: {{ item.recipient_phone_2 }}</p>
-              </div>
-          </div>
-          <div class="additional-info">
-              <h4>Additional Information:</h4>
-              <table>
-                  <tr>
-                      <th>Pickup Date</th>
-                      <td>{{ item.date }}</td>
-                  </tr>
-              </table>
-          </div>
-      </div>
-      {% endfor %}
-  </div>
-  {% endfor %}
-</div>
 
-<script>
-    document.getElementById("printButton").addEventListener("click", function () {
-      window.print();
-    });
-  </script>
-  
+<body>
+    {% for x in info %}
+    <div class="bol">
+        <div class="header">
+            <img alt='Barcode Generator TEC-IT' src='https://barcode.tec-it.com/barcode.ashx?data=https://speedlink-delivery.com/track/{{ x.barcode }}&code=MobileQRUrl' width="50px" height="50px" />
+         
+            <p>Date: 2023-9-12</p>
+              <div class="barcode">{{ x.barcode }}</div>
+            <img src="https://speedlink-delivery.com/static/images/logob.png" alt="Company Logo" width="50px"
+                class="logo">
+        </div>
+
+        <!-- Shipper & Recipient Info Card -->
+        <div class="card">
+            <div class="info">
+                <div class="shipper">
+                    <h3>From</h3>
+                    <strong>Name : </strong>{{ x.shipper_name }}<br>
+                    <strong>Phone 1 : </strong>** <br>
+                    <strong>Phone 2 : </strong>**<br>
+                    <strong>City : </strong>** <br>
+                    <strong>Addres : </strong>**
+                </div>
+                <div class="recipient">
+                    <h3>To</h3>
+                    <strong>Name : </strong>{{ x.recipient_name }}<br>
+                    <strong>Phone 1 : </strong>{{ x.recipient_phone_1 }}<br>
+                    <strong>Phone 2 : </strong>{{ x.recipient_phone_2 }}<br>
+                    <strong>City : </strong> {% if x.recipient_city == '1' %}
+                    القاهرة
+                {% elif x.recipient_city == '2' %}
+                    البحيرة
+                {% elif x.recipient_city == '3' %}
+                    الاسكندرية
+                {% elif x.recipient_city == '4' %}
+                    الدلتا
+                {% elif x.recipient_city == '5' %}
+                    الاسماعيلية
+                {% elif x.recipient_city == '6' %}
+                    بورسعيد
+                {% elif x.recipient_city == '7' %}
+                    السويس
+                {% elif x.recipient_city == '8' %}
+                    الشرقية
+                {% elif x.recipient_city == '9' %}
+                    بنى سويف
+                {% elif x.recipient_city == '10' %}
+                    المنيا
+                {% elif x.recipient_city == '11' %}
+                    اسيوط
+                {% elif x.recipient_city == '12' %}
+                    سوهاج
+                {% elif x.recipient_city == '13' %}
+                    الساحل الشمالي
+                {% elif x.recipient_city == '14' %}
+                    مطروح
+                {% elif x.recipient_city == '15' %}
+                    قنا
+                {% elif x.recipient_city == '16' %}
+                    الاقصر
+                {% elif x.recipient_city == '17' %}
+                    اسوان
+                {% elif x.recipient_city == '18' %}
+                    شرم الشيخ
+                {% elif x.recipient_city == '19' %}
+                    الغردقة
+                {% elif x.recipient_city == '20' %}
+                    مدن البحر الاحمر
+                {% elif x.recipient_city == '21' %}
+                    الفيوم
+                {% elif x.recipient_city == '22' %}
+                    خارج التغطية
+                {% elif x.recipient_city == '23' %}
+                    موقوف
+                {% elif x.recipient_city == '24' %}
+                    ش
+                {% elif x.recipient_city == '25' %}
+                    منصورة
+                {% elif x.recipient_city == '26' %}
+                    قليوب
+                {% else %}
+                    City not found
+                {% endif %} <br>
+                    <strong>Addres : </strong>{{ x.recipient_address }}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="info">
+                <div class="shipper">
+                    <h3>Shipper Comment</h3>
+                    <p>{{ x.shipper_note }}</p>
+                </div>
+                <div class="recipient">
+                    <h3>Recipient Comment</h3>
+                    <p>{{ x.recipient_note }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </body>
+
 </html>
