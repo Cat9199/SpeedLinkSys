@@ -2,6 +2,7 @@ from flask import Flask,redirect,url_for, request, send_file,jsonify, session, r
 from modules.barcode_extractor import extract_barcode_data
 from modules.sendmail import send_daily_report_email
 from modules.asyncsys import asyncsys
+from flask_csv import send_csv
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from datetime import date
@@ -35,7 +36,7 @@ class Admins(db.Model):
     
 class Shippers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
+    email = db.Column(db.String(100))
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
@@ -72,13 +73,13 @@ class WalletsLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     wallet_code = db.Column(db.String(15))
     name = db.Column(db.String(100))
-    Shipment_barcode = db.Column(db.String(15))
+    Shipment_barcode = db.Column(db.String(18))
     amount = db.Column(db.Integer)
     created_at = db.Column(db.String(23))
 
 class Shipment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    barcode = db.Column(db.String(15))
+    barcode = db.Column(db.String(18))
     shipper_username = db.Column(db.Integer)
     status = db.Column(db.String(50))
     delivery_id = db.Column(db.Integer)
@@ -108,7 +109,7 @@ class Shipment(db.Model):
     Collector = db.Column(db.Integer)
 class ShippingDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    barcode = db.Column(db.String(15))
+    barcode = db.Column(db.String(18))
     shipment_id = db.Column(db.Integer)
     delivery_id = db.Column(db.Integer)
     state = db.Column(db.String(100))
@@ -269,7 +270,8 @@ def generate_unique_code(length=15):
 
 def barcode_generator(n=15):
     random_numbers = [str(random.randint(0, 9)) for _ in range(n)]
-    return "".join(random_numbers)
+    x = "".join(random_numbers)
+    return f'SPL{x}'
 def get_current_time():
     egypt_timezone = pytz.timezone('Africa/Cairo')
     current_time = datetime.datetime.now(egypt_timezone)
@@ -315,7 +317,7 @@ def asprintu():
         x.isprint = 1
     db.session.commit()
     return redirect('/print')
-@app.route('/track/<int:barcode>')
+@app.route('/track/<barcode>')
 def track(barcode):
     info = Shipment.query.filter_by(barcode=barcode).first()
     Detail = ShippingDetail.query.filter_by(barcode=barcode).all()
@@ -396,6 +398,54 @@ def asynce():
     flash(f'{pros_count} في الطريق', 'pros')
     flash(f'{error_count} لم تصل', 'error')
     return redirect(url_for('dashboard'))
+
+@app.route('/expocsv/<username>')
+def export_csv(username):
+    # Query shipments for the specified user
+    shipments = Shipment.query.filter_by(shipper_username=username).all()
+
+    # Check if shipments are None or empty
+    if shipments is None or len(shipments) == 0:
+        return "No shipments found for this user."
+
+    # Create a list of dictionaries, each representing a shipment
+    shipment_data = []
+    for shipment in shipments:
+        shipment_data.append({
+            'Barcode': shipment.barcode,
+            'Status': shipment.status,
+            'Delivery ID': shipment.delivery_id,
+            'Shipper Name': shipment.shipper_name,
+            'Shipper Phone 1': shipment.shipper_phone_1,
+            'Shipper Phone 2': shipment.shipper_phone_2,
+            'Shipper Address': shipment.shipper_address,
+            'Shipper City': shipment.shipper_city,
+            'Shipper Wallet Code': shipment.shipper_wallet_code,
+            'Shipper Note': shipment.shipper_note,
+            'Recipient Name': shipment.recipient_name,
+            'Recipient Phone 1': shipment.recipient_phone_1,
+            'Recipient Phone 2': shipment.recipient_phone_2,
+            'Recipient Address': shipment.recipient_address,
+            'Recipient City': shipment.recipient_city,
+            'Recipient Note': shipment.recipient_note,
+            'Price': shipment.pprice,
+            'Shipment Status': shipment.shipment_status,
+            'Date': shipment.date,
+            'Delivery Date': shipment.delivery_date,
+        })
+
+    # Create a Pandas DataFrame from the shipment data
+    df = pd.DataFrame(shipment_data)
+
+    # Define the path where the CSV file will be saved
+    csv_filename = f'{username}_shipments.csv'
+
+    # Save the DataFrame as a CSV file
+    df.to_csv(csv_filename, index=False)
+
+    # Return the CSV file as a response
+    return send_file(csv_filename, as_attachment=True)
+
 @app.route('/logout')
 def logout():
     session['user_type'] = None
@@ -411,6 +461,13 @@ def delete(id):
     db.session.delete(student)
     db.session.commit()
     return redirect('/req')
+
+@app.route('/delete/<int:id>')
+def deletes(id):
+    student = Shippers.query.get_or_404(id)
+    db.session.delete(student)
+    db.session.commit()
+    return redirect('/users')
 @app.route('/pa',methods=['POST'])
 def printq():
     info = Shipment.query.filter_by(isprint=None).all()
@@ -421,7 +478,7 @@ def dashboard():
     user_type = session.get('user_type')
     username = session.get('username')
     if user_type == 'admin':
-        s1 = Shipment.query.filter_by(shipment_status='شحنة جديدة').count()
+        s1 = Shipment.query.filter_by().count()
         s2 = Shipment.query.filter_by(shipment_status='تم استلامها').count()
         s3 = Shipment.query.filter_by(shipment_status='تم توصيل الشحنة').count()
         s4 = Shipment.query.filter_by(shipment_status='لم يتم تسليم الشحنة').count()   
@@ -435,7 +492,7 @@ def dashboard():
         session['numn'] = y
         return render_template('dashboard.html', paget= 'مرحبا بك في لوحة التحكم',user_type=user_type, username=username,infoL=shinfo,s1=s1,s2=s2,s3=s3,s4=s4)
     elif user_type == 'shipper':
-        s1 = Shipment.query.filter_by(shipment_status='شحنة جديدة',shipper_username=username).count()
+        s1 = Shipment.query.filter_by(shipper_username=username).count()
         s2 = Shipment.query.filter_by(shipment_status='تم استلامها',shipper_username=username).count()
         s3 = Shipment.query.filter_by(shipment_status='تم توصيل الشحنة',shipper_username=username).count()
         s4 = Shipment.query.filter_by(shipment_status='لم يتم تسليم الشحنة',shipper_username=username).count()  
@@ -502,12 +559,16 @@ def fm():
 def setship():
     Deliveryid = request.form.get('dvid')
     data = request.form.get('date')
-    barcode = request.form.get('barcode')
-    s = Shipment.query.filter_by(barcode=barcode).first()
-    s.delivery_id = Deliveryid
-    s.delivery_date = data
-    db.session.commit()
-    return redirect('/sendtodelivery')
+    sid = request.form.get('sid')
+    s = Shipment.query.filter_by(id=sid).first()
+    if s is not None:
+        s.delivery_id = Deliveryid
+        s.delivery_date = data
+        db.session.commit()
+        return redirect('/sendtodelivery')
+    else:
+        return render_template('500.html')
+
 @app.route("/setup", methods=['POST'])
 def setup():
     Deliveryid = request.form.get('dvid')
@@ -659,7 +720,7 @@ def extract_barcode():
             barcodeFound = True
         return barcode_data
     return "Error: No image provided."
-@app.route('/changstates/<int:barcode>', methods=['POST'])
+@app.route('/changstates/<barcode>', methods=['POST'])
 def changstates(barcode):
     if request.method == 'POST':
         shipment_status = request.form['shipment_status']
@@ -693,7 +754,6 @@ def changstates(barcode):
                 db.session.add(s)
                 db.session.add(new_wl)
                 db.session.commit()
-                send_daily_report_email(x=s.barcode,y=s.recipient_name,z=s.pprice,receiver_email=u.email,name=u.name)
                 return redirect(f'/track/{barcode}')
             else:
                 db.session.add(new_ac)
@@ -750,7 +810,29 @@ def submitS():
             db.session.add(new_shipper)
             db.session.add(new_wallet)
             db.session.commit()
-            newp = Dprice(sid=new_shipper.id)
+            newp = Dprice(sid=new_shipper.id,
+                          p1=60,
+                          p2=60,
+                          p3=30,
+                          p5=65,
+                          p6=65,
+                          p7=65,
+                          p8=65,
+                          p9=85,
+                          p10=85,
+                          p11=85,
+                          p12=90,
+                          p13=80,
+                          p14=80,
+                          p15=90,
+                          p16=90,
+                          p17=95,
+                          p18=120,
+                          p20=95,
+                          p21=85,
+                          p25=65,
+                          p26=65
+                          )
             db.session.add(newp)
             db.session.commit()
             return render_template('adds.html',mes='ok')
@@ -808,7 +890,7 @@ def acs(id):
         "toAddress": s.recipient_address,
         "toPhone": s.recipient_phone_1,
         "toMobile": s.recipient_phone_2,
-        "toContactPerson": "احمد",
+        "toContactPerson": s.recipient_name,
         "price": s.pprice
     }
 
@@ -1106,4 +1188,4 @@ def server_error(error):
 if __name__ =='__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=1,port=8001,host='0.0.0.0')
+    app.run(debug=0,port=8001)
