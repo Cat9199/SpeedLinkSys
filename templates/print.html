@@ -11,7 +11,7 @@
         .bol {
             width: 210mm;
             /* A4 width */
-            height: 103mm;
+            height: 100mm;
             /* One-third of A4 height */
             border: 1px dotted #414141;
             /* Add a border */
@@ -113,8 +113,8 @@
         </div>
 
         <!-- Shipper & Recipient Info Card -->
-        <div class="card">
-            <div class="info">
+        <div class="card" style="margin: -20px 0;">
+            <div class="info" style="margin: -20px 0;">
                 <div class="shipper">
                     <h3>From</h3>
                     <strong>Name : </strong>{{ x.shipper_name }}<br>
@@ -187,8 +187,8 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="info">
+        <div class="card" style="margin: -20px 0;">
+            <div class="info" style="margin: -20px 0;">
                 <div class="shipper">
                     <h3>Shipper Comment</h3>
                     <p>{{ x.shipper_note }}</p>
@@ -202,5 +202,9 @@
     </div>
     {% endfor %}
 </body>
-
+<script>
+    window.onload = function() {
+        window.print();
+    };
+</script>
 </html>

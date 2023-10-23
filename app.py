@@ -169,7 +169,6 @@ def save_shipment(payload):
     response = requests.post(reqUrl, json=payload, headers=headersList)
     return response.text
 
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -177,10 +176,18 @@ def upload_file():
     file = request.files['file']
     if file.filename == '':
         return 'No selected file'
-    if not file.filename.endswith('.csv'):
-        return 'Invalid file format. Please upload a valid CSV file.'
+
+    # Check if the file has a valid extension
+    allowed_extensions = ['.csv', '.xlsx']
+    if not any(file.filename.endswith(ext) for ext in allowed_extensions):
+        return 'Invalid file format. Please upload a valid CSV or XLSX file.'
+
     try:
-        df = pd.read_csv(file)
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file)
+        elif file.filename.endswith('.xlsx'):
+            df = pd.read_excel(file)
+
         results = []
         for index, row in df.iterrows():
             shipper = Shippers.query.filter_by(username=row['اسم المستخدم']).first()
@@ -218,14 +225,15 @@ def upload_file():
             })
 
             db.session.add(shipment)
+            # Rest of your processing code for creating Shipment objects
 
+        # Commit changes to the database outside the loop
         db.session.commit()
 
         # Render the results in an HTML table
         return render_template('exel.html', results=results)
     except Exception as e:
         return f'Error processing the file: {str(e)}'
-
 
 def get_data_value(city_name):
   
@@ -268,7 +276,7 @@ def generate_unique_code(length=15):
     unique_code = ''.join(random.choice(characters) for _ in range(length))
     return unique_code
 
-def barcode_generator(n=15):
+def barcode_generator(n=8):
     random_numbers = [str(random.randint(0, 9)) for _ in range(n)]
     x = "".join(random_numbers)
     return f'SPL{x}'
@@ -277,6 +285,37 @@ def get_current_time():
     current_time = datetime.datetime.now(egypt_timezone)
     current_time = current_time.replace(microsecond=0, tzinfo=None)
     return current_time
+
+@app.route("/searchf")
+def searchf():
+          return render_template("search_form.html")
+@app.route('/api/search', methods=['GET'])
+def api_search_shipments():
+    search_query = request.args.get('query')
+    
+    # Use SQLAlchemy to query the Shipment model based on the search query
+    results = Shipment.query.filter(
+        (Shipment.barcode.like(f'%{search_query}%')) |
+        (Shipment.shipper_name.like(f'%{search_query}%')) |
+        (Shipment.shipper_phone_1.like(f'%{search_query}%')) |
+        (Shipment.recipient_name.like(f'%{search_query}%')) |
+        (Shipment.recipient_phone_1.like(f'%{search_query}%'))
+    ).all()
+
+    # Convert the results to a list of dictionaries
+    results_list = [
+        {
+            'id': result.id,
+            'barcode': result.barcode,
+            'shipper_name': result.shipper_name,
+            'shipper_phone_1': result.shipper_phone_1,
+            'recipient_name': result.recipient_name,
+            'recipient_phone_1': result.recipient_phone_1,
+        }
+        for result in results
+    ]
+
+    return jsonify(results_list)
 @app.route('/download_database')
 def download_database():
     try:
@@ -346,7 +385,10 @@ def login():
             return redirect('/dashboard')
         else:
             return render_template('login.html', mess='loginError')
-    return render_template('login.html')
+    if session['username']:
+        return redirect('/dashboard')
+    else :
+        return render_template('login.html')
 @app.route("/archive")
 def archive():
     utype = session['user_type']
@@ -355,8 +397,9 @@ def archive():
         infoL=infoL[::-1]
         return render_template('archive.html',infoL=infoL)
     elif utype == 'shipper':
-        infoL=infoL[::-1]
         infoL = Shipment.query.filter_by(shipper_username=session['username']).all()
+        infoL=infoL[::-1]
+        
         return render_template('archive.html',infoL=infoL)
     else:
         return render_template('404.html')
@@ -446,6 +489,24 @@ def export_csv(username):
     # Return the CSV file as a response
     return send_file(csv_filename, as_attachment=True)
 
+@app.route('/todays-deliveries', methods=['GET'])
+def todays_deliveries():
+    today = datetime.now().strftime("%Y-%m-%d")
+    shipments = Shipment.query.filter(and_(Shipment.delivery_date == today, Shipment.shipment_status != 'archiv')).all()
+    
+    if shipments:
+        delivery_list = []
+        for shipment in shipments:
+            delivery_data = {
+                'id': shipment.id,
+                'barcode': shipment.barcode,
+                'shipper_username': shipment.shipper_username,
+                # Add other attributes you want to include
+            }
+            delivery_list.append(delivery_data)
+        return jsonify(delivery_list)
+    else:
+        return jsonify([])
 @app.route('/logout')
 def logout():
     session['user_type'] = None
@@ -691,6 +752,7 @@ def setup():
     s.status = 'New Add'
     db.session.commit()
     return redirect('/fm')
+
 @app.route('/viweshipping')
 def viweshipping():
     s = Shipment.query.filter_by(status='New Add').all()
@@ -720,6 +782,50 @@ def extract_barcode():
             barcodeFound = True
         return barcode_data
     return "Error: No image provided."
+@app.route('/api/changestates/<barcode>', methods=['POST'])
+def changestates(barcode):
+    if request.method == 'POST':
+        shipment_status = request.form['shipment_status']
+        s = Shipment.query.filter_by(barcode=barcode).first()
+        if s:
+            u = Shippers.query.filter_by(username=s.shipper_username).first()
+            w = Wallets.query.filter_by(wallet_code=u.wallet_code).first()
+
+            new_ac = ShippingDetail(
+                barcode=barcode,
+                state=shipment_status,
+                created_at=get_current_time()
+            )
+
+            s.shipment_status = shipment_status
+
+            if shipment_status == 'تم توصيل الشحنة':
+                u.dues = int(u.dues) + int(s.pprice)
+                w.dues = int(w.dues) + int(s.pprice)
+
+                new_wl = WalletsLog(
+                    wallet_code=w.wallet_code,
+                    name=u.name,
+                    Shipment_barcode=s.barcode,
+                    amount=int(s.pprice),
+                    created_at=get_current_time()
+                )
+
+                s.status = 'archiv'
+                db.session.add(new_ac)
+                db.session.add(s)
+                db.session.add(new_wl)
+                db.session.commit()
+                return jsonify({"message": "Status updated successfully"})
+            else:
+                db.session.add(new_ac)
+                db.session.add(s)
+                db.session.commit()
+            
+                return jsonify({"message": "Status updated successfully"})
+        else:
+            return jsonify({"error": "الباركود غير موجود"}), 404
+
 @app.route('/changstates/<barcode>', methods=['POST'])
 def changstates(barcode):
     if request.method == 'POST':
@@ -1188,4 +1294,4 @@ def server_error(error):
 if __name__ =='__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=0,port=8001)
+    app.run(debug=1,port=8001,host="0.0.0.0")
